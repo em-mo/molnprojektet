@@ -1,8 +1,11 @@
 *.sln
 *.suo
 *.csproj
+*.contentproj
 Game.ico
 GameThumbnail.png
 molnprojektet.csproj.user
 molnprojektet/molnprojektet/obj/
 molnprojektet/molnprojektet/bin/
+molnprojektet/molnprojektetContent/obj/
+molnprojektet/molnprojektetContent/bin/
