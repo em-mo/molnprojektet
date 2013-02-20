@@ -21,9 +21,9 @@ namespace molnprojektet
         SpriteBatch spriteBatch;
         public static ContentManager contentManager;
         WindowHandler windowHandler;
+        Thread kinectThread;
 
         private KinectHandler kinectHandler;
-        public readonly object locker;
 
         public Game1()
         {
@@ -44,9 +44,6 @@ namespace molnprojektet
         /// </summary>
         protected override void Initialize()
         {
-            kinectHandler = new KinectHandler(this);
-            Thread kinectThread = new Thread(() => kinectHandler.run());
-            kinectThread.Start();
             base.Initialize();
         }
 
@@ -62,6 +59,10 @@ namespace molnprojektet
             GameWindow gameWindow = new GameWindow();
             gameWindow.Initialize(spriteBatch);
             windowHandler.ChangeWindow(gameWindow);
+
+            kinectHandler = new KinectHandler(gameWindow);
+            kinectThread = new Thread(() => kinectHandler.run());
+            kinectThread.Start();
         }
 
         /// <summary>

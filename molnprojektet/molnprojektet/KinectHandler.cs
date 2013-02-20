@@ -11,10 +11,10 @@ namespace molnprojektet
     class KinectHandler
     {
         KinectSensor sensor = null;
-        Game1 game;
+        GameWindow game;
         bool running = true;
         Skeleton currentSkeleton;
-        public KinectHandler(Game1 owner)
+        public KinectHandler(GameWindow owner)
         {
             game = owner;
 
@@ -68,6 +68,9 @@ namespace molnprojektet
             }
 
             TrackClosestSkeleton(skeletons);
+
+            handleArmAngles();
+
         }
 
         private void TrackClosestSkeleton(Skeleton[] skeletons)
@@ -100,6 +103,18 @@ namespace molnprojektet
                     this.sensor.SkeletonStream.ChooseSkeletons(closestID); // Track this skeleton
                 }
             }
+        }
+
+        private void handleArmAngles()
+        {
+            float leftHumerusAngle = calculateArmAngle(JointType.ShoulderLeft, JointType.ElbowLeft, Arm.Left);
+            float leftUlnaAngle = calculateArmAngle(JointType.ElbowLeft, JointType.WristLeft, Arm.Left);
+
+            float rightHumerusAngle = calculateArmAngle(JointType.ShoulderRight, JointType.ElbowRight, Arm.Right);
+            float rightUlnaAngle = calculateArmAngle(JointType.ElbowRight, JointType.WristRight, Arm.Right);
+
+            game.PlayerCloud.setLeftArmRotation(leftHumerusAngle, leftUlnaAngle);
+            game.PlayerCloud.setRightArmRotation(rightHumerusAngle, rightUlnaAngle);
         }
         
         private enum Arm {Left, Right};

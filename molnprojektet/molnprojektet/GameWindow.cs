@@ -14,8 +14,16 @@ namespace molnprojektet
         Sprite background;
         GraphicsHandler graphicsHandler;
         KeyboardState oldState;
+
         List<Sprite> spriteList = new List<Sprite>();
         List<Sprite> backgroundSprites = new List<Sprite>();
+
+        private Player playerCloud;
+
+        public Player PlayerCloud
+        {
+            get { return playerCloud; }
+        }
 
         public void Initialize(SpriteBatch batch)
         {
