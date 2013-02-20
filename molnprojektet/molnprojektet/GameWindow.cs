@@ -11,6 +11,7 @@ namespace molnprojektet
     class GameWindow : Window
     {
         Sprite cloud;
+        Sprite background;
         KeyboardState oldState;
 
         public override void Initialize(SpriteBatch batch)
@@ -23,7 +24,15 @@ namespace molnprojektet
             cloud.Initialize();
             cloud.Position = new Vector2(0, 0);
             cloud.Size = new Vector2(320, 160);
-            cloud.Texture = Game1.contentManager.Load<Texture2D>(@"Cloud");
+            cloud.Texture = Game1.contentManager.Load<Texture2D>(@"Images\Cloud");
+
+            background = new Sprite();
+            background.Initialize();
+            background.Position = new Vector2();
+            background.Size = new Vector2(Game1.graphics.PreferredBackBufferWidth, Game1.graphics.PreferredBackBufferHeight);
+            background.Texture = Game1.contentManager.Load<Texture2D>(@"Images\Gradient");
+
+            AddSpriteToHandler(background);            
             AddSpriteToHandler(cloud);            
         }
 
@@ -48,26 +57,7 @@ namespace molnprojektet
                 cloud.Position -= new Vector2(3, 0);
             }
 
-            // Is the SPACE key down?
-            if (newState.IsKeyDown(Keys.Space))
-            {
-                // If not down last update, key has just been pressed.
-                if (!oldState.IsKeyDown(Keys.Space))
-                {
-
-                }
-            }
-            else if (oldState.IsKeyDown(Keys.Space))
-            {
-                // Key was down last update, but not down now, so
-                // it has just been released.
-            }
-
-            // Update saved state.
             oldState = newState;
-        }
-
-
-        
+        }  
     }
 }

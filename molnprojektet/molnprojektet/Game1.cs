@@ -16,7 +16,7 @@ namespace molnprojektet
     /// </summary>
     public class Game1 : Microsoft.Xna.Framework.Game
     {
-        GraphicsDeviceManager graphics;
+        public static GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
         public static ContentManager contentManager;
         WindowHandler windowHandler;
