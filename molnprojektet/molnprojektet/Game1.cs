@@ -20,7 +20,9 @@ namespace molnprojektet
     {
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
-        KinectHandler kinectHandler;
+        
+        private KinectHandler kinectHandler;
+        public readonly object locker;
 
         public Game1()
         {
