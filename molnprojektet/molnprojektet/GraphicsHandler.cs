@@ -28,50 +28,15 @@ namespace molnprojektet
             batch.End();
         }
 
-        #region Draw
         public void DrawSprites()
         {
             foreach (Sprite sprite in spriteList)
 	        {
-                if(sprite.IsShowing)
+                if(sprite.Size != Vector2.Zero && sprite.IsShowing)
                     batch.Draw(sprite.Texture, sprite.Position, new Rectangle((int)sprite.Position.X, (int)sprite.Position.Y, (int)sprite.Size.X, (int)sprite.Size.Y), sprite.Color, sprite.Rotation, sprite.Origin, sprite.Scale, sprite.Effects, sprite.Layer);
-	        }       
+                else if(sprite.IsShowing)
+                    batch.Draw(sprite.Texture, new Rectangle((int)sprite.Position.X, (int)sprite.Position.Y, (int)sprite.Size.X, (int)sprite.Size.Y), null, sprite.Color, sprite.Rotation, sprite.Scale, sprite.Effects, sprite.Layer);   
+            }       
         }
-
-        public void DrawWithAdjustedSize()
-        {
-            foreach (Sprite sprite in spriteList)
-            {
-                if (sprite.IsShowing)
-                    batch.Draw(sprite.Texture, new Rectangle((int)sprite.Position.X, (int)sprite.Position.Y, (int)sprite.Size.X, (int)sprite.Size.Y), null, sprite.Color, sprite.Rotation, sprite.Scale, sprite.Effects, sprite.Layer);
-             }
-        }
-
-        /*
-        public virtual void Draw()
-        {
-            if (this.isVisable)
-                this.spriteBatch.Draw(this.texture, this.position, this.source, this.color, this.rotation, this.origin, this.scale, this.effects, this.layer);
-        }
-
-        public virtual void Draw(Vector2 drawPosition)
-        {
-            if (this.isVisable)
-                this.spriteBatch.Draw(this.texture, drawPosition, this.source, this.color, this.rotation, this.origin, this.scale, this.effects, this.layer);
-        }
-
-
-        #endregion
-
-        // Null kommer behövas sättas som .Size, annars kommer inte clipSize att fungera,
-        
-
-        public void DrawWithTextureSize()
-        {
-            if (this.isVisable)
-                this.spriteBatch.Draw(this.texture, new Rectangle((int)this.position.X, (int)this.position.Y, this.texture.Width, this.texture.Height), null, this.color, this.rotation, new Vector2(0, 0), SpriteEffects.None, this.layer);
-        }
-         * */
-        #endregion
     }
 }
