@@ -184,6 +184,7 @@ namespace molnprojektet
 
         public virtual void Initialize()
         {
+            this.position = Vector2.Zero;
             this.isVisable = true;
             this.color = Color.White;
             this.rotation = 0f;

@@ -17,7 +17,7 @@ namespace molnprojektet
     /// </summary>
     public class Game1 : Microsoft.Xna.Framework.Game
     {
-        GraphicsDeviceManager graphics;
+        public static GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
         public static ContentManager contentManager;
         WindowHandler windowHandler;
@@ -32,8 +32,8 @@ namespace molnprojektet
             contentManager.RootDirectory = "Content";
             windowHandler = new WindowHandler();
 
-            graphics.PreferredBackBufferWidth = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width / 2;
-            graphics.PreferredBackBufferHeight = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height / 2;
+            graphics.PreferredBackBufferWidth = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width *3 / 4;
+            graphics.PreferredBackBufferHeight = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height*3 / 4;
         }
 
         /// <summary>
