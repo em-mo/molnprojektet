@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.Kinect;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Content;
@@ -9,7 +8,6 @@ using Microsoft.Xna.Framework.GamerServices;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Media;
-using System.Threading;
 
 namespace molnprojektet
 {
@@ -20,14 +18,16 @@ namespace molnprojektet
     {
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
+        public static ContentManager contentManager;
+        WindowHandler windowHandler;
         
-        private KinectHandler kinectHandler;
-        public readonly object locker;
 
         public Game1()
         {
-            graphics = new GraphicsDeviceManager(this);
-            Content.RootDirectory = "Content";
+            graphics = new GraphicsDeviceManager(this); 
+            contentManager = new ContentManager(Services);
+            contentManager.RootDirectory = "Content";
+            windowHandler = new WindowHandler();
         }
 
         /// <summary>
@@ -38,11 +38,6 @@ namespace molnprojektet
         /// </summary>
         protected override void Initialize()
         {
-            // TODO: Add your initialization logic here
-            
-            kinectHandler = new KinectHandler(this);
-            Thread kinectThread = new Thread(() => kinectHandler.run());
-            kinectThread.Start();
             base.Initialize();
         }
 
@@ -55,7 +50,9 @@ namespace molnprojektet
             // Create a new SpriteBatch, which can be used to draw textures.
             spriteBatch = new SpriteBatch(GraphicsDevice);
 
-            // TODO: use this.Content to load your game content here
+            GameWindow gameWindow = new GameWindow();
+            gameWindow.Initialize(spriteBatch);
+            windowHandler.ChangeWindow(gameWindow);
         }
 
         /// <summary>
@@ -79,7 +76,7 @@ namespace molnprojektet
                 this.Exit();
 
             // TODO: Add your update logic here
-
+            windowHandler.UpdateWindow();
             base.Update(gameTime);
         }
 
@@ -89,11 +86,11 @@ namespace molnprojektet
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Draw(GameTime gameTime)
         {
+            spriteBatch.Begin();
             GraphicsDevice.Clear(Color.CornflowerBlue);
-
-            // TODO: Add your drawing code here
-
+            windowHandler.DrawWindowGraphics();
             base.Draw(gameTime);
+            spriteBatch.End();
         }
     }
 }
