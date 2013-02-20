@@ -13,6 +13,12 @@ namespace molnprojektet
         Sprite cloud;
         Sprite background;
         KeyboardState oldState;
+        private Player playerCloud;
+
+        public Player PlayerCloud
+        {
+            get { return playerCloud; }
+        }
 
         public override void Initialize(SpriteBatch batch)
         {
