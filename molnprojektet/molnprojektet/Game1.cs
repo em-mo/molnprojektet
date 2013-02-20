@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Content;
@@ -20,7 +21,9 @@ namespace molnprojektet
         SpriteBatch spriteBatch;
         public static ContentManager contentManager;
         WindowHandler windowHandler;
-        
+
+        private KinectHandler kinectHandler;
+        public readonly object locker;
 
         public Game1()
         {
@@ -41,6 +44,9 @@ namespace molnprojektet
         /// </summary>
         protected override void Initialize()
         {
+            kinectHandler = new KinectHandler(this);
+            Thread kinectThread = new Thread(() => kinectHandler.run());
+            kinectThread.Start();
             base.Initialize();
         }
 

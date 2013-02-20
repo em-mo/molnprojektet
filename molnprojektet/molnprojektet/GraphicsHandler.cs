@@ -11,7 +11,7 @@ namespace molnprojektet
     {
         SpriteBatch batch;
         List<Sprite> spriteList;
-    /* Define methods for Drawing sprites, adding sprites to an internal array, and initializating all variables */
+
         public void Initialize(SpriteBatch batch)
         {
             this.batch = batch;
