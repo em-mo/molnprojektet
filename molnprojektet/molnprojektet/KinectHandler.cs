@@ -10,7 +10,7 @@ namespace molnprojektet
 {
     class KinectHandler
     {
-        KinectSensor sensor;
+        KinectSensor sensor = null;
         Game1 game;
         bool running = true;
         Skeleton currentSkeleton;
@@ -48,7 +48,8 @@ namespace molnprojektet
         {
             while (running)
             {
-                ProcessSkeletonFrame();
+                if (sensor != null)
+                    ProcessSkeletonFrame();
             }
         }
 
