@@ -28,6 +28,9 @@ namespace molnprojektet
             contentManager = new ContentManager(Services);
             contentManager.RootDirectory = "Content";
             windowHandler = new WindowHandler();
+
+            graphics.PreferredBackBufferWidth = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width / 2;
+            graphics.PreferredBackBufferHeight = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height / 2;
         }
 
         /// <summary>
@@ -74,7 +77,6 @@ namespace molnprojektet
             // Allows the game to exit
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed)
                 this.Exit();
-
             // TODO: Add your update logic here
             windowHandler.UpdateWindow();
             base.Update(gameTime);
