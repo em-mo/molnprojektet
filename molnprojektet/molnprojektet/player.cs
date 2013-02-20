@@ -19,7 +19,7 @@ namespace molnprojektet
 
         public List<Sprite> getSprites()
         {
-            List<Sprite> sprites = new List<Sprite>;
+            List<Sprite> sprites = new List<Sprite>();
             sprites.Add(cloudSprite);
             sprites.Add(leftHumerusSprite);
             sprites.Add(leftUlnaSprite);

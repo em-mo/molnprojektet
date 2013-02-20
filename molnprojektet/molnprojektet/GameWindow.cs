@@ -12,11 +12,15 @@ namespace molnprojektet
     {
         Sprite cloud;
         Sprite background;
+        GraphicsHandler graphicsHandler;
         KeyboardState oldState;
+        List<Sprite> spriteList = new List<Sprite>();
+        List<Sprite> backgroundSprites = new List<Sprite>();
 
-        public override void Initialize(SpriteBatch batch)
+        public void Initialize(SpriteBatch batch)
         {
-            base.Initialize(batch);
+            graphicsHandler = new GraphicsHandler();
+            graphicsHandler.Initialize(batch);
             
             oldState = new KeyboardState();
 
@@ -28,15 +32,15 @@ namespace molnprojektet
             
             background = new Sprite();
             background.Initialize();
-            background.Position = new Vector2();
             background.Size = new Vector2(Game1.graphics.PreferredBackBufferWidth, Game1.graphics.PreferredBackBufferHeight);
             background.Texture = Game1.contentManager.Load<Texture2D>(@"Images\Gradient");
-            
-            AddSpriteToHandler(background);            
-            AddSpriteToHandler(cloud);            
+
+            spriteList.Add(cloud);
+
+            backgroundSprites.Add(background);
         }
 
-        public override void Update()
+        public void Update()
         {
             KeyboardState newState = Keyboard.GetState();
 
@@ -58,6 +62,12 @@ namespace molnprojektet
             }
 
             oldState = newState;
-        }  
+        }
+
+        public void Draw()
+        {
+            graphicsHandler.DrawSprites(backgroundSprites);
+            graphicsHandler.DrawSprites(spriteList);
+        }
     }
 }
