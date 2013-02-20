@@ -2,6 +2,7 @@
 *.suo
 *.csproj
 *.contentproj
+*.cachefile
 Game.ico
 GameThumbnail.png
 molnprojektet.csproj.user
