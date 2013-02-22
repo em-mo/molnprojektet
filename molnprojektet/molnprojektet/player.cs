@@ -17,6 +17,8 @@ namespace molnprojektet
         private Sprite rightUlnaSprite;
         private Sprite rightHandSprite;
 
+        private List<Sprite> spriteList;
+
         private Vector2 position;
 
         public Vector2 Position
@@ -42,16 +44,7 @@ namespace molnprojektet
 
         public List<Sprite> getSprites()
         {
-            List<Sprite> sprites = new List<Sprite>();
-            sprites.Add(cloudSprite);
-            sprites.Add(leftHumerusSprite);
-            sprites.Add(leftUlnaSprite);
-            sprites.Add(leftHandSprite);
-            sprites.Add(rightHumerusSprite);
-            sprites.Add(rightUlnaSprite);
-            sprites.Add(rightHandSprite);
-
-            return sprites;
+            return spriteList;
         }
 
         public Player()
@@ -74,45 +67,65 @@ namespace molnprojektet
             rightUlnaSprite.Origin = new Vector2(0, rightUlnaSprite.Texture.Height / 2);
             rightHandSprite.Origin = new Vector2(0, rightHandSprite.Texture.Height / 2);
 
+            spriteList = new List<Sprite>();
+            spriteList.Add(cloudSprite);
+            spriteList.Add(leftHumerusSprite);
+            spriteList.Add(leftUlnaSprite);
+            spriteList.Add(leftHandSprite);
+            spriteList.Add(rightHumerusSprite);
+            spriteList.Add(rightUlnaSprite);
+            spriteList.Add(rightHandSprite);
+
         }
 
         public void setLeftArmRotation(float humerusRotation, float ulnaRotation)
         {
-            leftHumerusSprite.Rotation = humerusRotation;
+            lock (locker)
+            {
+                leftHumerusSprite.Rotation = humerusRotation;
 
-            Vector2 newUlnaPosition = new Vector2();
-            newUlnaPosition.X = leftHumerusSprite.Position.X - (int)(Math.Cos(humerusRotation) * leftHumerusSprite.Texture.Width);
-            newUlnaPosition.Y = leftHumerusSprite.Position.Y - (int)(Math.Sin(humerusRotation) * leftHumerusSprite.Texture.Width);
+                Vector2 newUlnaPosition = new Vector2();
+                newUlnaPosition.X = leftHumerusSprite.Position.X - (int)(Math.Cos(humerusRotation) * leftHumerusSprite.Texture.Width);
+                newUlnaPosition.Y = leftHumerusSprite.Position.Y - (int)(Math.Sin(humerusRotation) * leftHumerusSprite.Texture.Width);
 
-            leftUlnaSprite.Position = newUlnaPosition;
-            leftUlnaSprite.Rotation = ulnaRotation;
+                leftUlnaSprite.Position = newUlnaPosition;
+                leftUlnaSprite.Rotation = ulnaRotation;
 
-            Vector2 newHandPosition = new Vector2();
-            newHandPosition.X = newUlnaPosition.X - (int)(Math.Cos(ulnaRotation) * leftUlnaSprite.Texture.Width);
-            newHandPosition.X = newUlnaPosition.Y - (int)(Math.Sin(ulnaRotation) * leftUlnaSprite.Texture.Width);
+                Vector2 newHandPosition = new Vector2();
+                newHandPosition.X = newUlnaPosition.X - (int)(Math.Cos(ulnaRotation) * leftUlnaSprite.Texture.Width);
+                newHandPosition.X = newUlnaPosition.Y - (int)(Math.Sin(ulnaRotation) * leftUlnaSprite.Texture.Width);
 
-            leftHandSprite.Position = newHandPosition;
-            leftHandSprite.Rotation = ulnaRotation;
+                leftHandSprite.Position = newHandPosition;
+                leftHandSprite.Rotation = ulnaRotation;
+            }
         }
 
         public void setRightArmRotation(float humerusRotation, float ulnaRotation)
         {
-            rightHumerusSprite.Rotation = humerusRotation;
+            lock (locker)
+            {
+                rightHumerusSprite.Rotation = humerusRotation;
 
-            Vector2 newUlnaPosition = new Vector2();
-            newUlnaPosition.X = rightHumerusSprite.Position.X + (int)(Math.Cos(humerusRotation) * rightHumerusSprite.Texture.Width);
-            newUlnaPosition.Y = rightHumerusSprite.Position.Y - (int)(Math.Sin(humerusRotation) * rightHumerusSprite.Texture.Width);
+                Vector2 newUlnaPosition = new Vector2();
+                newUlnaPosition.X = rightHumerusSprite.Position.X + (int)(Math.Cos(humerusRotation) * rightHumerusSprite.Texture.Width);
+                newUlnaPosition.Y = rightHumerusSprite.Position.Y - (int)(Math.Sin(humerusRotation) * rightHumerusSprite.Texture.Width);
 
-            rightUlnaSprite.Position = newUlnaPosition;
-            rightUlnaSprite.Rotation = ulnaRotation;
+                rightUlnaSprite.Position = newUlnaPosition;
+                rightUlnaSprite.Rotation = ulnaRotation;
 
-            Vector2 newHandPosition = new Vector2();
-            newHandPosition.X = newUlnaPosition.X + (int)(Math.Cos(ulnaRotation) * rightUlnaSprite.Texture.Width);
-            newHandPosition.X = newUlnaPosition.Y - (int)(Math.Sin(ulnaRotation) * rightUlnaSprite.Texture.Width);
+                Vector2 newHandPosition = new Vector2();
+                newHandPosition.X = newUlnaPosition.X + (int)(Math.Cos(ulnaRotation) * rightUlnaSprite.Texture.Width);
+                newHandPosition.X = newUlnaPosition.Y - (int)(Math.Sin(ulnaRotation) * rightUlnaSprite.Texture.Width);
 
-            rightHandSprite.Position = newHandPosition;
-            rightHandSprite.Rotation = ulnaRotation;
+                rightHandSprite.Position = newHandPosition;
+                rightHandSprite.Rotation = ulnaRotation;
+            }
+        }
 
+        public void draw(GraphicsHandler g)
+        {
+            lock(locker)
+                g.DrawSprites(spriteList);
         }
     }
 }
