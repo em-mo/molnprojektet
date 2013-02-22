@@ -48,6 +48,7 @@ namespace molnprojektet
         {
             while (running)
             {
+                System.Threading.Thread.Sleep(10);
                 if (sensor != null)
                     ProcessSkeletonFrame();
             }
@@ -113,8 +114,8 @@ namespace molnprojektet
             float rightHumerusAngle = calculateArmAngle(JointType.ShoulderRight, JointType.ElbowRight, Arm.Right);
             float rightUlnaAngle = calculateArmAngle(JointType.ElbowRight, JointType.WristRight, Arm.Right);
 
-            game.PlayerCloud.setLeftArmRotation(leftHumerusAngle, leftUlnaAngle);
-            game.PlayerCloud.setRightArmRotation(rightHumerusAngle, rightUlnaAngle);
+            game.PlayerCloud.SetLeftArmRotation(leftHumerusAngle, leftUlnaAngle);
+            game.PlayerCloud.SetRightArmRotation(rightHumerusAngle, rightUlnaAngle);
         }
         
         private enum Arm {Left, Right};

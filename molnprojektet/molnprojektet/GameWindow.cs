@@ -37,6 +37,8 @@ namespace molnprojektet
             cloud.Position = new Vector2(0, 0);
             cloud.Size = new Vector2(320, 160);
             cloud.Texture = Game1.contentManager.Load<Texture2D>(@"Images\Cloud");
+
+            playerCloud = new Player();
             
             background = new Sprite();
             background.Initialize();
@@ -76,6 +78,7 @@ namespace molnprojektet
         {
             graphicsHandler.DrawSprites(backgroundSprites);
             graphicsHandler.DrawSprites(spriteList);
+            playerCloud.Draw(graphicsHandler);
         }
     }
 }

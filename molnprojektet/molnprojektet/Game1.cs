@@ -62,6 +62,7 @@ namespace molnprojektet
 
             kinectHandler = new KinectHandler(gameWindow);
             kinectThread = new Thread(() => kinectHandler.run());
+            kinectThread.IsBackground = true;
             kinectThread.Start();
         }
 
@@ -87,6 +88,8 @@ namespace molnprojektet
             // TODO: Add your update logic here
             windowHandler.UpdateWindow();
             base.Update(gameTime);
+
+            Thread.Sleep(10);
         }
 
         /// <summary>
