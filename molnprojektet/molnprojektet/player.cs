@@ -37,12 +37,15 @@ namespace molnprojektet
             {
                 Vector2 diffVector = value - position;
 
-                Utils.addToSpritePosition(leftHumerusSprite, diffVector);
-                Utils.addToSpritePosition(leftUlnaSprite, diffVector);
-                Utils.addToSpritePosition(leftHandSprite, diffVector);
-                Utils.addToSpritePosition(rightHumerusSprite, diffVector);
-                Utils.addToSpritePosition(rightUlnaSprite, diffVector);
-                Utils.addToSpritePosition(rightHandSprite, diffVector);
+                foreach(Sprite sprite in spriteList)
+                    Utils.addToSpritePosition(sprite, diffVector);
+
+                //Utils.addToSpritePosition(leftHumerusSprite, diffVector);
+                //Utils.addToSpritePosition(leftUlnaSprite, diffVector);
+                //Utils.addToSpritePosition(leftHandSprite, diffVector);
+                //Utils.addToSpritePosition(rightHumerusSprite, diffVector);
+                //Utils.addToSpritePosition(rightUlnaSprite, diffVector);
+                //Utils.addToSpritePosition(rightHandSprite, diffVector);
 
                 cloudSprite.Position = value;
                 position = value;
@@ -65,6 +68,9 @@ namespace molnprojektet
 
             SetLeftArmRotation((float)Math.PI / 2, (float)Math.PI / 2);
             SetRightArmRotation(-(float)Math.PI / 2, -(float)Math.PI / 2);
+            Position = new Vector2(200, 300);
+            Position = new Vector2(100, 100);
+            Position = new Vector2(600, 400);
         }
 
         private void InitSprites()
@@ -161,9 +167,6 @@ namespace molnprojektet
             rightHandSprite.Position = newHandPosition;
 
         }
-
-        
-
 
         public void SetLeftArmRotation(float humerusRotation, float ulnaRotation)
         {
