@@ -64,14 +64,14 @@ namespace molnprojektet
 
         public Color Color 
         { 
-            get {return color;}
-            set{color = value; }
+            get { return color; }
+            set { color = value; }
         }
 
         public Rectangle Source
         {
             get { return source; }
-            set { source= value; }
+            set { source = value; }
         }
       
         public Vector2 Origin

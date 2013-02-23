@@ -200,10 +200,10 @@ namespace molnprojektet
 
             right_LeftPreviousPosition = trackedJoint.Position.X;
 
-            if (right_LeftDeltaBuffer > SWIPE_THRESHOLD && rightHandcoolDown.AddSeconds(0.4) < DateTime.Now)
+            if (right_LeftDeltaBuffer > SWIPE_THRESHOLD && rightHandcoolDown < DateTime.Now)
             {
                 right_LeftDeltaBuffer = 0F;
-                rightHandcoolDown = DateTime.Now;
+                rightHandcoolDown = DateTime.Now.AddSeconds(0.4);
                 return true;
             }
             else
@@ -218,10 +218,10 @@ namespace molnprojektet
 
             right_RightPreviousPosition = trackedJoint.Position.X;
 
-            if (right_RightDeltaBuffer > SWIPE_THRESHOLD && rightHandcoolDown.AddSeconds(0.4) < DateTime.Now)
+            if (right_RightDeltaBuffer > SWIPE_THRESHOLD && rightHandcoolDown < DateTime.Now)
             {
                 right_RightDeltaBuffer = 0F;
-                rightHandcoolDown = DateTime.Now;
+                rightHandcoolDown = DateTime.Now.AddSeconds(0.4);
                 return true;
             }
             else
@@ -236,10 +236,10 @@ namespace molnprojektet
 
             right_DownPreviousPosition = trackedJoint.Position.Y;
             
-            if (right_DownDeltaBuffer > SWIPE_THRESHOLD && rightHandcoolDown.AddSeconds(0.4) < DateTime.Now)
+            if (right_DownDeltaBuffer > SWIPE_THRESHOLD && rightHandcoolDown < DateTime.Now)
             {
                 right_DownDeltaBuffer = 0F;
-                rightHandcoolDown = DateTime.Now;
+                rightHandcoolDown = DateTime.Now.AddSeconds(0.4);
                 return true;
             }
             else
@@ -254,10 +254,10 @@ namespace molnprojektet
 
             right_UpPreviousPosition = trackedJoint.Position.Y;
             
-            if (right_UpDeltaBuffer > SWIPE_THRESHOLD && rightHandcoolDown.AddSeconds(0.4) < DateTime.Now)
+            if (right_UpDeltaBuffer > SWIPE_THRESHOLD && rightHandcoolDown < DateTime.Now)
             {
                 right_UpDeltaBuffer = 0F;
-                rightHandcoolDown = DateTime.Now;
+                rightHandcoolDown = DateTime.Now.AddSeconds(0.4);
                 return true;
             }
             else
@@ -278,10 +278,10 @@ namespace molnprojektet
 
             left_LeftPreviousPosition = trackedJoint.Position.X;
 
-            if (left_LeftDeltaBuffer > SWIPE_THRESHOLD && leftHandcoolDown.AddSeconds(0.4) < DateTime.Now)
+            if (left_LeftDeltaBuffer > SWIPE_THRESHOLD && leftHandcoolDown < DateTime.Now)
             {
                 left_LeftDeltaBuffer = 0F;
-                rightHandcoolDown = DateTime.Now;
+                rightHandcoolDown = DateTime.Now.AddSeconds(0.4);
                 return true;
             }
             else
@@ -296,10 +296,10 @@ namespace molnprojektet
 
             left_RightPreviousPosition = trackedJoint.Position.X;
 
-            if (left_RightDeltaBuffer > SWIPE_THRESHOLD && leftHandcoolDown.AddSeconds(0.4) < DateTime.Now)
+            if (left_RightDeltaBuffer > SWIPE_THRESHOLD && leftHandcoolDown < DateTime.Now)
             {
                 left_RightDeltaBuffer = 0F;
-                leftHandcoolDown = DateTime.Now;
+                leftHandcoolDown = DateTime.Now.AddSeconds(0.4);
                 return true;
             }
             else
@@ -314,10 +314,10 @@ namespace molnprojektet
 
             left_DownPreviousPosition = trackedJoint.Position.Y;
 
-            if (left_DownDeltaBuffer > SWIPE_THRESHOLD && leftHandcoolDown.AddSeconds(0.4) < DateTime.Now)
+            if (left_DownDeltaBuffer > SWIPE_THRESHOLD && leftHandcoolDown < DateTime.Now)
             {
                 left_DownDeltaBuffer = 0F;
-                leftHandcoolDown = DateTime.Now;
+                leftHandcoolDown = DateTime.Now.AddSeconds(0.4);
                 return true;
             }
             else
@@ -332,10 +332,10 @@ namespace molnprojektet
 
             left_UpPreviousPosition = trackedJoint.Position.Y;
 
-            if (left_UpDeltaBuffer > SWIPE_THRESHOLD && leftHandcoolDown.AddSeconds(0.4) < DateTime.Now)
+            if (left_UpDeltaBuffer > SWIPE_THRESHOLD && leftHandcoolDown < DateTime.Now)
             {
                 left_UpDeltaBuffer = 0F;
-                leftHandcoolDown = DateTime.Now;
+                leftHandcoolDown = DateTime.Now.AddSeconds(0.4);
                 return true;
             }
             else

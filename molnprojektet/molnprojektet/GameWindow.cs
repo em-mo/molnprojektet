@@ -51,18 +51,22 @@ namespace molnprojektet
             if(newState.IsKeyDown(Keys.Down))
             {
                 //cloud.Position += new Vector2(0,3);   
+                SwipeDown();
             }
             else if(newState.IsKeyDown(Keys.Up))
             {
                 //cloud.Position -= new Vector2(0, 3);
+                SwipeUp();
             }
             if(newState.IsKeyDown(Keys.Right))
             {
                 //cloud.Position += new Vector2(3, 0);
+                SwipeRight();
             }
             else if (newState.IsKeyDown(Keys.Left))
             {
                 //cloud.Position -= new Vector2(3, 0);
+                SwipeLeft();
             }
 
             oldState = newState;
@@ -71,19 +75,23 @@ namespace molnprojektet
 
         public void SwipeUp()
         {
-            playerCloud.Speed += new Vector2(0,15);
+            lock(playerCloud.locker)
+                playerCloud.Speed += new Vector2(0,15);
         }
         public void SwipeDown()
         {
-            playerCloud.Speed += new Vector2(0, -15);
+            lock (playerCloud.locker)
+                playerCloud.Speed += new Vector2(0, -15);
         }
         public void SwipeLeft()
         {
-            playerCloud.Speed += new Vector2(-15, 0);
+            lock (playerCloud.locker)
+                playerCloud.Speed += new Vector2(-15, 0);
         }
         public void SwipeRight()
         {
-            playerCloud.Speed += new Vector2(15, 0);
+            lock (playerCloud.locker)
+                playerCloud.Speed += new Vector2(15, 0);
         }
 
 

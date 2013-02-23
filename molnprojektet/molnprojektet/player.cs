@@ -9,6 +9,7 @@ namespace molnprojektet
 {
     class Player
     {
+        enum PlayerSprites { Cloud, LeftHumerus, LeftUlna, LeftHand, RightHumerus, RightUlna, RightHand };
         private Sprite cloudSprite;
         private Sprite leftHumerusSprite;
         private Sprite leftUlnaSprite;
@@ -19,6 +20,9 @@ namespace molnprojektet
         private Vector2 speed = new Vector2(0,0);
         private DateTime currentTime = DateTime.Now;
         private DateTime previusTime = DateTime.Now;
+
+        enum CloudDirection {None, Left, Right}
+        private Dictionary<CloudDirection, Texture2D> cloudTextures;
 
         private const int acceleration = -6;
         private const int MAX_SPEED = 15;
@@ -32,9 +36,11 @@ namespace molnprojektet
         private int leftUlnaOffset;
         private int leftHandOffset;
 
-        private List<Sprite> spriteList;
+        private Dictionary<PlayerSprites, Sprite> spriteDict;
 
         private Vector2 position;
+
+        public readonly object locker = new object();
 
         public Vector2 Position
         {
@@ -43,15 +49,8 @@ namespace molnprojektet
             {
                 Vector2 diffVector = value - position;
 
-                foreach(Sprite sprite in spriteList)
+                foreach(Sprite sprite in spriteDict.Values)
                     Utils.addToSpritePosition(sprite, diffVector);
-
-                //Utils.addToSpritePosition(leftHumerusSprite, diffVector);
-                //Utils.addToSpritePosition(leftUlnaSprite, diffVector);
-                //Utils.addToSpritePosition(leftHandSprite, diffVector);
-                //Utils.addToSpritePosition(rightHumerusSprite, diffVector);
-                //Utils.addToSpritePosition(rightUlnaSprite, diffVector);
-                //Utils.addToSpritePosition(rightHandSprite, diffVector);
 
                 cloudSprite.Position = value;
                 position = value;
@@ -60,29 +59,28 @@ namespace molnprojektet
 
         public Vector2 Speed
         {
-            get { return speed; }
+            get { lock (this.locker) return speed; }
             set 
-            { 
-                if(value.X <= MAX_SPEED)
-                    speed.X = value.X;
-                if (value.Y <= MAX_SPEED)
-                    speed.Y = value.Y;
+            {
+                lock (this.locker)
+                {
+                    if (value.X <= MAX_SPEED)
+                        speed.X = value.X;
+                    if (value.Y <= MAX_SPEED)
+                        speed.Y = value.Y;
+                }
             }
         }
 
-        public readonly object locker = new object();
-
-        public List<Sprite> GetSprites()
-        {
-            return spriteList;
-        }
 
         public Player()
         {
-            spriteList = new List<Sprite>();
+            spriteDict = new Dictionary<PlayerSprites, Sprite>();
             InitSprites();
             Position = new Vector2(400, 300);
             InitArms();
+
+            shadePositions = new Queue<Vector2>();
 
             SetLeftArmRotation((float)Math.PI / 2, (float)Math.PI / 2);
             SetRightArmRotation(-(float)Math.PI / 2, -(float)Math.PI / 2);
@@ -109,7 +107,12 @@ namespace molnprojektet
             rightUlnaSprite.Initialize();
             rightHandSprite.Initialize();
 
-            cloudSprite.Texture = Game1.contentManager.Load<Texture2D>(@"Images\Cloud");
+            cloudTextures = new Dictionary<CloudDirection, Texture2D>();
+            cloudTextures.Add(CloudDirection.None, Game1.contentManager.Load<Texture2D>(@"Images\Cloud"));
+            cloudTextures.Add(CloudDirection.Left, Game1.contentManager.Load<Texture2D>(@"Images\Cloud_Move_Left"));
+            cloudTextures.Add(CloudDirection.Right, Game1.contentManager.Load<Texture2D>(@"Images\Cloud_Move_Right"));
+
+            cloudSprite.Texture = cloudTextures[CloudDirection.None];
             leftHumerusSprite.Texture = Game1.contentManager.Load<Texture2D>(@"Images\Humerus_left");
             leftUlnaSprite.Texture = Game1.contentManager.Load<Texture2D>(@"Images\Ulna_left");
             leftHandSprite.Texture = Game1.contentManager.Load<Texture2D>(@"Images\Hand_left");
@@ -117,6 +120,8 @@ namespace molnprojektet
             rightUlnaSprite.Texture = Game1.contentManager.Load<Texture2D>(@"Images\Ulna_right");
             rightHandSprite.Texture = Game1.contentManager.Load<Texture2D>(@"Images\Hand_right");
 
+            leftUlnaSprite.Layer = 0f;
+            rightUlnaSprite.Layer = 0f;
 
             // Origin to right mid
             leftHumerusSprite.Origin = new Vector2(leftHumerusSprite.Texture.Width, leftHumerusSprite.Texture.Height / 2);
@@ -128,22 +133,27 @@ namespace molnprojektet
             rightUlnaSprite.Origin = new Vector2(0, rightUlnaSprite.Texture.Height / 2);
             rightHandSprite.Origin = new Vector2(0, rightHandSprite.Texture.Height * 5 / 7);
 
-            spriteList = new List<Sprite>();
-            spriteList.Add(cloudSprite);
-            spriteList.Add(rightUlnaSprite);
-            spriteList.Add(leftUlnaSprite);
-            spriteList.Add(leftHumerusSprite);
-            spriteList.Add(leftHandSprite);
-            spriteList.Add(rightHumerusSprite);
-            spriteList.Add(rightHandSprite);
+            spriteDict = new Dictionary<PlayerSprites, Sprite>();
+            spriteDict.Add(PlayerSprites.Cloud, cloudSprite);
+            spriteDict.Add(PlayerSprites.RightUlna, rightUlnaSprite);
+            spriteDict.Add(PlayerSprites.LeftUlna, leftUlnaSprite);
+            spriteDict.Add(PlayerSprites.LeftHumerus, leftHumerusSprite);
+            spriteDict.Add(PlayerSprites.LeftHand, leftHandSprite);
+            spriteDict.Add(PlayerSprites.RightHumerus, rightHumerusSprite);
+            spriteDict.Add(PlayerSprites.RightHand, rightHandSprite);
         }
 
         public void UpdatePosition()
         {
-            UpdateSpeed();
-            Position += speed;
+            lock (this.locker)
+            {
+                UpdateSpeed();
+                Position += speed;
+            }
         }
-        
+
+        private static float DirectionSpriteThreshold = 5;
+
         private void UpdateSpeed()
         {
             currentTime = DateTime.Now;
@@ -156,6 +166,13 @@ namespace molnprojektet
                 newSpeed.Y = 0;
             speed = newSpeed;
             previusTime = currentTime;
+
+            if (speed.X < -DirectionSpriteThreshold)
+                cloudSprite.Texture = cloudTextures[CloudDirection.Left];
+            if (speed.X > DirectionSpriteThreshold)
+                cloudSprite.Texture = cloudTextures[CloudDirection.Right];
+            else
+                cloudSprite.Texture = cloudTextures[CloudDirection.None];
         }
 
         private void InitArms()
@@ -208,20 +225,21 @@ namespace molnprojektet
 
         public void SetLeftArmRotation(float humerusRotation, float ulnaRotation)
         {
+
+            leftHumerusSprite.Rotation = humerusRotation;
+
+            Vector2 newUlnaPosition = new Vector2();
+            newUlnaPosition.X = leftHumerusSprite.Position.X + (int)(Math.Cos(humerusRotation) * leftUlnaOffset);
+            newUlnaPosition.Y = leftHumerusSprite.Position.Y + (int)(Math.Sin(humerusRotation) * leftUlnaOffset);
+
+            Vector2 newHandPosition = new Vector2();
+            newHandPosition.X = newUlnaPosition.X + (int)(Math.Cos(ulnaRotation) * leftHandOffset);
+            newHandPosition.Y = newUlnaPosition.Y + (int)(Math.Sin(ulnaRotation) * leftHandOffset);
+
             lock (locker)
             {
-                leftHumerusSprite.Rotation = humerusRotation;
-
-                Vector2 newUlnaPosition = new Vector2();
-                newUlnaPosition.X = leftHumerusSprite.Position.X + (int)(Math.Cos(humerusRotation) * leftUlnaOffset);
-                newUlnaPosition.Y = leftHumerusSprite.Position.Y + (int)(Math.Sin(humerusRotation) * leftUlnaOffset);
-
                 leftUlnaSprite.Position = newUlnaPosition;
                 leftUlnaSprite.Rotation = ulnaRotation;
-
-                Vector2 newHandPosition = new Vector2();
-                newHandPosition.X = newUlnaPosition.X + (int)(Math.Cos(ulnaRotation) * leftHandOffset);
-                newHandPosition.Y = newUlnaPosition.Y + (int)(Math.Sin(ulnaRotation) * leftHandOffset);
 
                 leftHandSprite.Position = newHandPosition;
                 leftHandSprite.Rotation = ulnaRotation;
@@ -230,30 +248,64 @@ namespace molnprojektet
 
         public void SetRightArmRotation(float humerusRotation, float ulnaRotation)
         {
+
+            rightHumerusSprite.Rotation = humerusRotation;
+
+            Vector2 newUlnaPosition = new Vector2();
+            newUlnaPosition.X = rightHumerusSprite.Position.X + (int)(Math.Cos(humerusRotation) * rightUlnaOffset);
+            newUlnaPosition.Y = rightHumerusSprite.Position.Y + (int)(Math.Sin(humerusRotation) * rightUlnaOffset);
+
+            Vector2 newHandPosition = new Vector2();
+            newHandPosition.X = newUlnaPosition.X + (int)(Math.Cos(ulnaRotation) * rightHandOffset);
+            newHandPosition.Y = newUlnaPosition.Y + (int)(Math.Sin(ulnaRotation) * rightHandOffset);
+
             lock (locker)
             {
-                rightHumerusSprite.Rotation = humerusRotation;
-
-                Vector2 newUlnaPosition = new Vector2();
-                newUlnaPosition.X = rightHumerusSprite.Position.X + (int)(Math.Cos(humerusRotation) * rightUlnaOffset);
-                newUlnaPosition.Y = rightHumerusSprite.Position.Y + (int)(Math.Sin(humerusRotation) * rightUlnaOffset);
-
                 rightUlnaSprite.Position = newUlnaPosition;
                 rightUlnaSprite.Rotation = ulnaRotation;
-
-                Vector2 newHandPosition = new Vector2();
-                newHandPosition.X = newUlnaPosition.X + (int)(Math.Cos(ulnaRotation) * rightHandOffset);
-                newHandPosition.Y = newUlnaPosition.Y + (int)(Math.Sin(ulnaRotation) * rightHandOffset);
 
                 rightHandSprite.Position = newHandPosition;
                 rightHandSprite.Rotation = ulnaRotation;
             }
         }
 
+        private Queue<Vector2> shadePositions;
+        private DateTime shadeTimer = DateTime.Now;
+        
+        private void DrawShades(GraphicsHandler g)
+        {
+            if (shadeTimer < DateTime.Now) 
+            {
+                shadePositions.Enqueue(position);
+                if (shadePositions.Count > 5)
+                    shadePositions.Dequeue();
+            }
+
+            byte alpha = 128;
+            lock (locker)
+            {
+                //TODO: Test if reverse order is needed
+                foreach (Vector2 v in shadePositions.ToList<Vector2>())
+                {
+
+                        Position = v;
+                        Color color;
+                        foreach (Sprite sprite in spriteDict.Values)
+                        {
+                            color = sprite.Color;
+                            color.A = alpha;
+                            g.DrawSprite(sprite);
+                        }
+                        alpha -= 20;
+                }
+            }
+        }
+
         public void Draw(GraphicsHandler g)
         {
             lock(locker)
-                g.DrawSprites(spriteList);
+                foreach(Sprite sprite in spriteDict.Values)
+                    g.DrawSprite(sprite);
         }
     }
 }
