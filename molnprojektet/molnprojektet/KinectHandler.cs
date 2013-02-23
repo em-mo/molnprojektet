@@ -12,13 +12,13 @@ namespace molnprojektet
     {
 
         private const float SWIPE_INITIALIZE_VALUE = 0F;
-        private const float SWIPE_DELTA_QOTIENT = 1.5F;
+        private const float SWIPE_DELTA_QOTIENT = 1.7F;
         private const float SWIPE_THRESHOLD = 0.17F;
         
-        //Right hand UP
+        //Right hand DOWN
         private float right_DownDeltaBuffer;
         private float right_DownPreviousPosition;
-        //Right hand DOWN
+        //Right hand UP
         private float right_UpDeltaBuffer;
         private float right_UpPreviousPosition;
         //RightHand LEFT
@@ -29,10 +29,10 @@ namespace molnprojektet
         private float right_RightPreviousPosition;
 
 
-        //Left hand UP
+        //Left hand DOWN
         private float left_DownDeltaBuffer;
         private float left_DownPreviousPosition;
-        //Left hand DOWN
+        //Left hand UP
         private float left_UpDeltaBuffer;
         private float left_UpPreviousPosition;
         //LeftHand LEFT
