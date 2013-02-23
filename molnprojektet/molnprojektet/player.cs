@@ -16,6 +16,12 @@ namespace molnprojektet
         private Sprite rightHumerusSprite;
         private Sprite rightUlnaSprite;
         private Sprite rightHandSprite;
+        private Vector2 speed = Vector2.Zero;
+        private DateTime currentTime = DateTime.Now;
+        private DateTime previusTime = DateTime.Now;
+
+        private const int acceleration = -4;
+        private const int MAX_SPEED = 30;
 
         private Vector2 position;
 
@@ -38,6 +44,18 @@ namespace molnprojektet
             }
         }
 
+        public Vector2 Speed
+        {
+            get { return speed; }
+            set 
+            { 
+                if(value.X <= MAX_SPEED)
+                    speed.X = value.X;
+                if (value.Y <= MAX_SPEED)
+                    speed.Y = value.Y;
+            }
+        }
+
         public readonly object locker;
 
         public List<Sprite> getSprites()
@@ -56,13 +74,31 @@ namespace molnprojektet
 
         public Player()
         {
-            cloudSprite.Texture = Game1.contentManager.Load<Texture2D>("Cloud.png");
-            leftHumerusSprite.Texture = Game1.contentManager.Load<Texture2D>("Humerus_left.png");
-            leftUlnaSprite.Texture = Game1.contentManager.Load<Texture2D>("Ulna_left.png");
-            leftHandSprite.Texture = Game1.contentManager.Load<Texture2D>("Hand_left.png");
-            rightHumerusSprite.Texture = Game1.contentManager.Load<Texture2D>("Humerus_right.png");
-            rightUlnaSprite.Texture = Game1.contentManager.Load<Texture2D>("Ulna_right.png");
-            rightHandSprite.Texture = Game1.contentManager.Load<Texture2D>("Hand_right.png");
+            cloudSprite = new Sprite();
+            leftHumerusSprite = new Sprite();
+            leftUlnaSprite = new Sprite();
+            leftHandSprite = new Sprite();
+            rightHumerusSprite = new Sprite();
+            rightUlnaSprite = new Sprite();
+            rightHandSprite = new Sprite();
+
+            cloudSprite.Initialize();
+            leftHumerusSprite.Initialize();
+            leftUlnaSprite.Initialize();
+            leftHandSprite.Initialize();
+            rightHumerusSprite.Initialize();
+            rightUlnaSprite.Initialize();
+            rightHandSprite.Initialize();
+
+
+
+            cloudSprite.Texture = Game1.contentManager.Load<Texture2D>(@"Images\Cloud");
+            leftHumerusSprite.Texture = Game1.contentManager.Load<Texture2D>(@"Images\Humerus_left");
+            leftUlnaSprite.Texture = Game1.contentManager.Load<Texture2D>(@"Images\Ulna_left");
+            leftHandSprite.Texture = Game1.contentManager.Load<Texture2D>(@"Images\Hand_left");
+            rightHumerusSprite.Texture = Game1.contentManager.Load<Texture2D>(@"Images\Humerus_right");
+            rightUlnaSprite.Texture = Game1.contentManager.Load<Texture2D>(@"Images\Ulna_right");
+            rightHandSprite.Texture = Game1.contentManager.Load<Texture2D>(@"Images\Hand_right");
 
             // Origin to right mid
             leftHumerusSprite.Origin = new Vector2(leftHumerusSprite.Texture.Width, leftHumerusSprite.Texture.Height / 2);
@@ -74,6 +110,27 @@ namespace molnprojektet
             rightUlnaSprite.Origin = new Vector2(0, rightUlnaSprite.Texture.Height / 2);
             rightHandSprite.Origin = new Vector2(0, rightHandSprite.Texture.Height / 2);
 
+        }
+
+        public void UpdatePosition()
+        {
+            UpdateSpeed();
+            Position += speed;
+        }
+        private const double speedFactor = 15;
+        
+        private void UpdateSpeed()
+        {
+            currentTime = DateTime.Now;
+            Vector2 newSpeed;
+            newSpeed.X = acceleration * (currentTime - previusTime).Milliseconds/1000 + speed.X;
+            newSpeed.Y = acceleration * (currentTime - previusTime).Milliseconds/1000 + speed.Y;
+            if (newSpeed.X < 0)
+                newSpeed.X = 0;
+            if (newSpeed.Y < 0)
+                newSpeed.Y = 0;
+            speed = newSpeed;
+            previusTime = currentTime;
         }
 
         public void setLeftArmRotation(float humerusRotation, float ulnaRotation)

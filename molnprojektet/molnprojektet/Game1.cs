@@ -22,8 +22,9 @@ namespace molnprojektet
         public static ContentManager contentManager;
         WindowHandler windowHandler;
         Thread kinectThread;
+        KinectHandler kinectHandler;
 
-        private KinectHandler kinectHandler;
+        //private KinectHandler kinectHandler;
 
         public Game1()
         {
@@ -32,8 +33,8 @@ namespace molnprojektet
             contentManager.RootDirectory = "Content";
             windowHandler = new WindowHandler();
 
-            graphics.PreferredBackBufferWidth = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width *3 / 4;
-            graphics.PreferredBackBufferHeight = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height*3 / 4;
+            graphics.PreferredBackBufferWidth = 1280;//GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width *3 / 4;
+            graphics.PreferredBackBufferHeight = 720; // GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height * 3 / 4;
         }
 
         /// <summary>

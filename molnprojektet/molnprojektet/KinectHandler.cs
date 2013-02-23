@@ -10,6 +10,38 @@ namespace molnprojektet
 {
     class KinectHandler
     {
+
+        private const float SWIPE_INITIALIZE_VALUE = 0F;
+        private const float SWIPE_DELTA_QOTIENT = 1.5F;
+        private const float SWIPE_THRESHOLD = 0.17F;
+        
+        //Right hand UP
+        private float right_DownDeltaBuffer;
+        private float right_DownPreviousPosition;
+        //Right hand DOWN
+        private float right_UpDeltaBuffer;
+        private float right_UpPreviousPosition;
+        //RightHand LEFT
+        private float right_LeftDeltaBuffer;
+        private float right_LeftPreviousPosition;
+        //RightHand RIGHT
+        private float right_RightDeltaBuffer;
+        private float right_RightPreviousPosition;
+
+
+        //Left hand UP
+        private float left_DownDeltaBuffer;
+        private float left_DownPreviousPosition;
+        //Left hand DOWN
+        private float left_UpDeltaBuffer;
+        private float left_UpPreviousPosition;
+        //LeftHand LEFT
+        private float left_LeftDeltaBuffer;
+        private float left_LeftPreviousPosition;
+        //LeftHand left
+        private float left_RightDeltaBuffer;
+        private float left_RightPreviousPosition;
+
         KinectSensor sensor = null;
         GameWindow game;
         bool running = true;
@@ -69,8 +101,30 @@ namespace molnprojektet
 
             TrackClosestSkeleton(skeletons);
 
-            handleArmAngles();
+            if (currentSkeleton != null && currentSkeleton.TrackingState != SkeletonTrackingState.NotTracked)
+            {
 
+                handleArmAngles();
+
+                if (CheckForRightHandSwipeUp(currentSkeleton.Joints[JointType.HandRight]))
+                    game.SwipeUp();
+                if (CheckForRightHandSwipeDown(currentSkeleton.Joints[JointType.HandRight]))
+                    game.SwipeDown();
+                if (CheckForRightHandSwipeToLeft(currentSkeleton.Joints[JointType.HandRight]))
+                    game.SwipeLeft();
+                if (CheckForRightHandSwipeToRight(currentSkeleton.Joints[JointType.HandRight]))
+                    game.SwipeRight();
+
+
+                if (CheckForLeftHandSwipeUp(currentSkeleton.Joints[JointType.HandLeft]))
+                    game.SwipeUp();
+                if (CheckForLeftHandSwipeDown(currentSkeleton.Joints[JointType.HandLeft]))
+                    game.SwipeDown();
+                if (CheckForLeftHandSwipeToLeft(currentSkeleton.Joints[JointType.HandLeft]))
+                    game.SwipeLeft();
+                if (CheckForLeftHandSwipeToRight(currentSkeleton.Joints[JointType.HandLeft]))
+                    game.SwipeRight();
+            }
         }
 
         private void TrackClosestSkeleton(Skeleton[] skeletons)
@@ -105,7 +159,7 @@ namespace molnprojektet
             }
         }
 
-        private void handleArmAngles()
+        public void handleArmAngles()
         {
             float leftHumerusAngle = calculateArmAngle(JointType.ShoulderLeft, JointType.ElbowLeft, Arm.Left);
             float leftUlnaAngle = calculateArmAngle(JointType.ElbowLeft, JointType.WristLeft, Arm.Left);
@@ -134,5 +188,160 @@ namespace molnprojektet
 
             return (float)Utils.CalculateAngle(vector1, vector2);
         }
+
+        #region Righthand Swipe checks
+        private DateTime rightHandcoolDown = DateTime.Now;
+        public bool CheckForRightHandSwipeToLeft(Joint trackedJoint)
+        {
+            right_LeftDeltaBuffer /= SWIPE_DELTA_QOTIENT; 
+            
+            right_LeftDeltaBuffer += right_LeftPreviousPosition - trackedJoint.Position.X;
+
+            right_LeftPreviousPosition = trackedJoint.Position.X;
+
+            if (right_LeftDeltaBuffer > SWIPE_THRESHOLD && rightHandcoolDown.AddSeconds(0.4) < DateTime.Now)
+            {
+                right_LeftDeltaBuffer = 0F;
+                rightHandcoolDown = DateTime.Now;
+                return true;
+            }
+            else
+                return false;
+        }
+
+        public bool CheckForRightHandSwipeToRight(Joint trackedJoint)
+        {
+            right_RightDeltaBuffer /= SWIPE_DELTA_QOTIENT;
+
+            right_RightDeltaBuffer += trackedJoint.Position.X - right_RightPreviousPosition;
+
+            right_RightPreviousPosition = trackedJoint.Position.X;
+
+            if (right_RightDeltaBuffer > SWIPE_THRESHOLD && rightHandcoolDown.AddSeconds(0.4) < DateTime.Now)
+            {
+                right_RightDeltaBuffer = 0F;
+                rightHandcoolDown = DateTime.Now;
+                return true;
+            }
+            else
+                return false;
+        }
+
+        public bool CheckForRightHandSwipeDown(Joint trackedJoint)
+        {
+            right_DownDeltaBuffer /= SWIPE_DELTA_QOTIENT;
+
+            right_DownDeltaBuffer += right_DownPreviousPosition - trackedJoint.Position.Y;
+
+            right_DownPreviousPosition = trackedJoint.Position.Y;
+            
+            if (right_DownDeltaBuffer > SWIPE_THRESHOLD && rightHandcoolDown.AddSeconds(0.4) < DateTime.Now)
+            {
+                right_DownDeltaBuffer = 0F;
+                rightHandcoolDown = DateTime.Now;
+                return true;
+            }
+            else
+                return false;
+        }
+
+        public bool CheckForRightHandSwipeUp(Joint trackedJoint)
+        {
+            right_UpDeltaBuffer /= SWIPE_DELTA_QOTIENT;
+            
+            right_UpDeltaBuffer += trackedJoint.Position.Y - right_UpPreviousPosition;
+
+            right_UpPreviousPosition = trackedJoint.Position.Y;
+            
+            if (right_UpDeltaBuffer > SWIPE_THRESHOLD && rightHandcoolDown.AddSeconds(0.4) < DateTime.Now)
+            {
+                right_UpDeltaBuffer = 0F;
+                rightHandcoolDown = DateTime.Now;
+                return true;
+            }
+            else
+                return false;
+        }
+        #endregion
+
+
+
+        #region Lefthand Swipe checks
+
+        private DateTime leftHandcoolDown = DateTime.Now;
+        public bool CheckForLeftHandSwipeToLeft(Joint trackedJoint)
+        {
+            left_LeftDeltaBuffer /= SWIPE_DELTA_QOTIENT;
+
+            left_LeftDeltaBuffer += left_LeftPreviousPosition - trackedJoint.Position.X;
+
+            left_LeftPreviousPosition = trackedJoint.Position.X;
+
+            if (left_LeftDeltaBuffer > SWIPE_THRESHOLD && leftHandcoolDown.AddSeconds(0.4) < DateTime.Now)
+            {
+                left_LeftDeltaBuffer = 0F;
+                rightHandcoolDown = DateTime.Now;
+                return true;
+            }
+            else
+                return false;
+        }
+
+        public bool CheckForLeftHandSwipeToRight(Joint trackedJoint)
+        {
+            left_RightDeltaBuffer /= SWIPE_DELTA_QOTIENT;
+
+            left_RightDeltaBuffer += trackedJoint.Position.X - left_RightPreviousPosition;
+
+            left_RightPreviousPosition = trackedJoint.Position.X;
+
+            if (left_RightDeltaBuffer > SWIPE_THRESHOLD && leftHandcoolDown.AddSeconds(0.4) < DateTime.Now)
+            {
+                left_RightDeltaBuffer = 0F;
+                leftHandcoolDown = DateTime.Now;
+                return true;
+            }
+            else
+                return false;
+        }
+
+        public bool CheckForLeftHandSwipeDown(Joint trackedJoint)
+        {
+            left_DownDeltaBuffer /= SWIPE_DELTA_QOTIENT;
+
+            left_DownDeltaBuffer += left_DownPreviousPosition - trackedJoint.Position.Y;
+
+            left_DownPreviousPosition = trackedJoint.Position.Y;
+
+            if (left_DownDeltaBuffer > SWIPE_THRESHOLD && leftHandcoolDown.AddSeconds(0.4) < DateTime.Now)
+            {
+                left_DownDeltaBuffer = 0F;
+                leftHandcoolDown = DateTime.Now;
+                return true;
+            }
+            else
+                return false;
+        }
+
+        public bool CheckForLeftHandSwipeUp(Joint trackedJoint)
+        {
+            left_UpDeltaBuffer /= SWIPE_DELTA_QOTIENT;
+
+            left_UpDeltaBuffer += trackedJoint.Position.Y - left_UpPreviousPosition;
+
+            left_UpPreviousPosition = trackedJoint.Position.Y;
+
+            if (left_UpDeltaBuffer > SWIPE_THRESHOLD && leftHandcoolDown.AddSeconds(0.4) < DateTime.Now)
+            {
+                left_UpDeltaBuffer = 0F;
+                leftHandcoolDown = DateTime.Now;
+                return true;
+            }
+            else
+                return false;
+        }
+        #endregion
+
+
     }
 }
