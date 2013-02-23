@@ -24,8 +24,8 @@ namespace molnprojektet
         enum CloudDirection {None, Left, Right}
         private Dictionary<CloudDirection, Texture2D> cloudTextures;
 
-        private const int acceleration = -6;
-        private const int MAX_SPEED = 15;
+        private const int acceleration = -20;
+        private const int MAX_SPEED = 4;
 
         private int rightHumerusOffsetX;
         private int rightHumerusOffsetY;
@@ -35,6 +35,7 @@ namespace molnprojektet
         private int leftHumerusOffsetY;
         private int leftUlnaOffset;
         private int leftHandOffset;
+        private Vector2 ScreenOffset;
 
         private Dictionary<PlayerSprites, Sprite> spriteDict;
 
@@ -47,13 +48,17 @@ namespace molnprojektet
             get { return position; }
             set
             {
-                Vector2 diffVector = value - position;
+                if (value.X > 0 && value.X + cloudSprite.Size.X < ScreenOffset.X &&
+                    value.Y > 0 && value.Y + cloudSprite.Size.Y < ScreenOffset.Y)
+                {
+                    Vector2 diffVector = value - position;
 
-                foreach(Sprite sprite in spriteDict.Values)
-                    Utils.addToSpritePosition(sprite, diffVector);
+                    foreach (Sprite sprite in spriteDict.Values)
+                        Utils.addToSpritePosition(sprite, diffVector);
 
-                cloudSprite.Position = value;
-                position = value;
+                    cloudSprite.Position = value;
+                    position = value;
+                }
             }
         }
 
@@ -73,9 +78,10 @@ namespace molnprojektet
         }
 
 
-        public Player()
+        public Player(Vector2 screenOffset)
         {
             spriteDict = new Dictionary<PlayerSprites, Sprite>();
+            this.ScreenOffset = screenOffset;
             InitSprites();
             Position = new Vector2(400, 300);
             InitArms();
@@ -157,14 +163,24 @@ namespace molnprojektet
         private void UpdateSpeed()
         {
             currentTime = DateTime.Now;
-            Vector2 newSpeed;
-            newSpeed.X = acceleration * (currentTime - previusTime).Milliseconds/1000 + speed.X;
-            newSpeed.Y = acceleration * (currentTime - previusTime).Milliseconds/1000 + speed.Y;
-            if (newSpeed.X < 0)
-                newSpeed.X = 0;
-            if (newSpeed.Y < 0)
-                newSpeed.Y = 0;
-            speed = newSpeed;
+            Vector2 newSpeed = Vector2.Zero;
+            if (speed != Vector2.Zero)
+            {
+                if (speed.X > 0)
+                    newSpeed.X = acceleration * (currentTime - previusTime).Milliseconds / 1000 + speed.X;
+                else if (speed.X < 0)
+                    newSpeed.X = (-acceleration) * (currentTime - previusTime).Milliseconds / 1000 + speed.X;
+                if (speed.Y > 0)
+                    newSpeed.Y = acceleration * (currentTime - previusTime).Milliseconds / 1000 + speed.Y;
+                else if (speed.Y < 0)
+                    newSpeed.Y = (-acceleration) * (currentTime - previusTime).Milliseconds / 1000 + speed.Y;
+
+                if (newSpeed.X > 0 && newSpeed.X < 0.15f || newSpeed.X > -0.15f && newSpeed.X < 0)
+                    newSpeed.X = 0;
+                if (newSpeed.Y > 0 && newSpeed.Y < 0.15f || newSpeed.Y > -0.15f && newSpeed.Y < 0)
+                    newSpeed.Y = 0;
+                speed = newSpeed;
+            }
             previusTime = currentTime;
 
             if (speed.X < -DirectionSpriteThreshold)

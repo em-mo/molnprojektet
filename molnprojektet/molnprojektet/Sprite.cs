@@ -59,7 +59,10 @@ namespace molnprojektet
         public Texture2D Texture
         {
             get { return texture; }
-            set { texture = value; }
+            set { 
+                    texture = value;
+                    size = new Vector2(texture.Width, texture.Height);
+                }
         }
 
         public Color Color 

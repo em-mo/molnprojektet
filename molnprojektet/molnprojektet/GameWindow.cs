@@ -29,13 +29,14 @@ namespace molnprojektet
         {
             graphicsHandler = new GraphicsHandler();
             graphicsHandler.Initialize(batch);
-            playerCloud = new Player();
             oldState = new KeyboardState();
-            
+
             background = new Sprite();
             background.Initialize();
-            background.Size = new Vector2(Game1.graphics.PreferredBackBufferWidth, Game1.graphics.PreferredBackBufferHeight);
             background.Texture = Game1.contentManager.Load<Texture2D>(@"Images\Gradient");
+            background.Size = new Vector2(Game1.graphics.PreferredBackBufferWidth, Game1.graphics.PreferredBackBufferHeight);
+
+            playerCloud = new Player(background.Size);
 
             backgroundSprites.Add(background);
         }
@@ -75,23 +76,23 @@ namespace molnprojektet
 
         public void SwipeUp()
         {
-            lock(playerCloud.locker)
-                playerCloud.Speed += new Vector2(0,15);
+            lock (playerCloud.locker)
+                playerCloud.Speed += new Vector2(0,-2);
         }
         public void SwipeDown()
         {
             lock (playerCloud.locker)
-                playerCloud.Speed += new Vector2(0, -15);
+                playerCloud.Speed += new Vector2(0, 2);
         }
         public void SwipeLeft()
         {
             lock (playerCloud.locker)
-                playerCloud.Speed += new Vector2(-15, 0);
+                playerCloud.Speed += new Vector2(-2, 0);
         }
         public void SwipeRight()
         {
             lock (playerCloud.locker)
-                playerCloud.Speed += new Vector2(15, 0);
+                playerCloud.Speed += new Vector2(2, 0);
         }
 
 
