@@ -27,7 +27,6 @@ namespace molnprojektet
 
         public void Initialize(SpriteBatch batch)
         {
-            //kinectHandler = new KinectHandler(this);
             graphicsHandler = new GraphicsHandler();
             graphicsHandler.Initialize(batch);
             playerCloud = new Player();
@@ -37,7 +36,6 @@ namespace molnprojektet
             background.Initialize();
             background.Size = new Vector2(Game1.graphics.PreferredBackBufferWidth, Game1.graphics.PreferredBackBufferHeight);
             background.Texture = Game1.contentManager.Load<Texture2D>(@"Images\Gradient");
-
 
             backgroundSprites.Add(background);
         }
@@ -93,7 +91,7 @@ namespace molnprojektet
         {
             graphicsHandler.DrawSprites(backgroundSprites);
             graphicsHandler.DrawSprites(spriteList);
-            graphicsHandler.DrawSprites(playerCloud.getSprites());
+            playerCloud.Draw(graphicsHandler);
         }
     }
 }

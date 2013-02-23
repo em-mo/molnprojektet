@@ -27,9 +27,7 @@ namespace molnprojektet
 
         public static void addToSpritePosition(Sprite sprite, Vector2 vector)
         {
-            Vector2 newPosition = sprite.Position;
-            newPosition.X += vector.X;
-            newPosition.Y += vector.X;
+            Vector2 newPosition = sprite.Position + vector;           
             sprite.Position = newPosition;
         }
 
