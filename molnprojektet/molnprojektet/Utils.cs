@@ -25,18 +25,23 @@ namespace molnprojektet
             return angle;
         }
 
-        public static void addToSpritePosition(Sprite sprite, Vector2 vector)
+        public static void AddToSpritePosition(Sprite sprite, Vector2 vector)
         {
             Vector2 newPosition = sprite.Position + vector;           
             sprite.Position = newPosition;
         }
 
-        public static void addToSpritePosition(Sprite sprite, float x, float y)
+        public static void AddToSpritePosition(Sprite sprite, float x, float y)
         {
             Vector2 newPosition = sprite.Position;
             newPosition.X += x;
             newPosition.Y += y;
             sprite.Position = newPosition;
+        }
+
+        public static double TicksToSeconds(long ticks)
+        {
+            return (double)ticks / (double)10000000;
         }
     }
 }

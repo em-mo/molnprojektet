@@ -41,34 +41,47 @@ namespace molnprojektet
             backgroundSprites.Add(background);
         }
 
-        
+        private bool[] keysDown = new bool[4];
+
         public void Update()
         {
             playerCloud.UpdatePosition();
 
             #region Key States
             KeyboardState newState = Keyboard.GetState();
-
-            if(newState.IsKeyDown(Keys.Down))
+            
+            if(newState.IsKeyDown(Keys.Down) && !keysDown[0])
             {
                 //cloud.Position += new Vector2(0,3);   
                 SwipeDown();
+                keysDown[0] = true;
             }
-            else if(newState.IsKeyDown(Keys.Up))
+            if (newState.IsKeyUp(Keys.Down))
+                keysDown[0] = false;
+            if (newState.IsKeyDown(Keys.Up) && !keysDown[1])
             {
                 //cloud.Position -= new Vector2(0, 3);
                 SwipeUp();
+                keysDown[1] = true;
             }
-            if(newState.IsKeyDown(Keys.Right))
+            if (newState.IsKeyUp(Keys.Up))
+                keysDown[1] = false;
+            if (newState.IsKeyDown(Keys.Right) && !keysDown[2])
             {
                 //cloud.Position += new Vector2(3, 0);
                 SwipeRight();
+                keysDown[2] = true;
             }
-            else if (newState.IsKeyDown(Keys.Left))
+            if (newState.IsKeyUp(Keys.Right))
+                keysDown[2] = false;
+            if (newState.IsKeyDown(Keys.Left) && !keysDown[3])
             {
                 //cloud.Position -= new Vector2(3, 0);
                 SwipeLeft();
+                keysDown[3] = true;
             }
+            if (newState.IsKeyUp(Keys.Left))
+                keysDown[3] = false;
 
             oldState = newState;
             #endregion

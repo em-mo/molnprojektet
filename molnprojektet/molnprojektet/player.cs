@@ -24,17 +24,17 @@ namespace molnprojektet
         enum CloudDirection {None, Left, Right}
         private Dictionary<CloudDirection, Texture2D> cloudTextures;
 
-        private const int acceleration = -20;
-        private const int MAX_SPEED = 4;
+        private const float acceleration = -3;
+        private const float MAX_SPEED = 50;
 
-        private int rightHumerusOffsetX;
-        private int rightHumerusOffsetY;
-        private int rightUlnaOffset;
-        private int rightHandOffset;
-        private int leftHumerusOffsetX;
-        private int leftHumerusOffsetY;
-        private int leftUlnaOffset;
-        private int leftHandOffset;
+        private float rightHumerusOffsetX;
+        private float rightHumerusOffsetY;
+        private float rightUlnaOffset;
+        private float rightHandOffset;
+        private float leftHumerusOffsetX;
+        private float leftHumerusOffsetY;
+        private float leftUlnaOffset;
+        private float leftHandOffset;
         private Vector2 ScreenOffset;
 
         private Dictionary<PlayerSprites, Sprite> spriteDict;
@@ -54,7 +54,7 @@ namespace molnprojektet
                     Vector2 diffVector = value - position;
 
                     foreach (Sprite sprite in spriteDict.Values)
-                        Utils.addToSpritePosition(sprite, diffVector);
+                        Utils.AddToSpritePosition(sprite, diffVector);
 
                     cloudSprite.Position = value;
                     position = value;
@@ -69,10 +69,18 @@ namespace molnprojektet
             {
                 lock (this.locker)
                 {
-                    if (value.X <= MAX_SPEED)
-                        speed.X = value.X;
-                    if (value.Y <= MAX_SPEED)
-                        speed.Y = value.Y;
+                    speed = value;
+                    if (value.X > MAX_SPEED)
+                        speed.X = MAX_SPEED;
+
+                    else if (value.X < -MAX_SPEED)
+                        speed.X = -MAX_SPEED;
+
+                    if (value.Y > MAX_SPEED)
+                        speed.Y = MAX_SPEED;
+
+                    else if (value.Y < -MAX_SPEED)
+                        speed.Y = -MAX_SPEED;
                 }
             }
         }
@@ -158,7 +166,7 @@ namespace molnprojektet
             }
         }
 
-        private static float DirectionSpriteThreshold = 5;
+        private static float DirectionSpriteThreshold = 4;
 
         private void UpdateSpeed()
         {
@@ -166,18 +174,19 @@ namespace molnprojektet
             Vector2 newSpeed = Vector2.Zero;
             if (speed != Vector2.Zero)
             {
+                System.Console.WriteLine(speed.X);
                 if (speed.X > 0)
-                    newSpeed.X = acceleration * (currentTime - previusTime).Milliseconds / 1000 + speed.X;
+                    newSpeed.X = acceleration * (float)Utils.TicksToSeconds((currentTime - previusTime).Ticks) + speed.X;
                 else if (speed.X < 0)
-                    newSpeed.X = (-acceleration) * (currentTime - previusTime).Milliseconds / 1000 + speed.X;
+                    newSpeed.X = (-acceleration) * (float)Utils.TicksToSeconds((currentTime - previusTime).Ticks) + speed.X;
                 if (speed.Y > 0)
-                    newSpeed.Y = acceleration * (currentTime - previusTime).Milliseconds / 1000 + speed.Y;
+                    newSpeed.Y = acceleration * (float)Utils.TicksToSeconds((currentTime - previusTime).Ticks) + speed.Y;
                 else if (speed.Y < 0)
-                    newSpeed.Y = (-acceleration) * (currentTime - previusTime).Milliseconds / 1000 + speed.Y;
+                    newSpeed.Y = (-acceleration) * (float)Utils.TicksToSeconds((currentTime - previusTime).Ticks) + speed.Y;
 
-                if (newSpeed.X > 0 && newSpeed.X < 0.15f || newSpeed.X > -0.15f && newSpeed.X < 0)
+                if (newSpeed.X < 0.15f && newSpeed.X > -0.15f)
                     newSpeed.X = 0;
-                if (newSpeed.Y > 0 && newSpeed.Y < 0.15f || newSpeed.Y > -0.15f && newSpeed.Y < 0)
+                if (newSpeed.Y < 0.15f && newSpeed.Y > -0.15f)
                     newSpeed.Y = 0;
                 speed = newSpeed;
             }
@@ -185,7 +194,7 @@ namespace molnprojektet
 
             if (speed.X < -DirectionSpriteThreshold)
                 cloudSprite.Texture = cloudTextures[CloudDirection.Left];
-            if (speed.X > DirectionSpriteThreshold)
+            else if (speed.X > DirectionSpriteThreshold)
                 cloudSprite.Texture = cloudTextures[CloudDirection.Right];
             else
                 cloudSprite.Texture = cloudTextures[CloudDirection.None];
@@ -193,15 +202,15 @@ namespace molnprojektet
 
         private void InitArms()
         {
-            leftHumerusOffsetX = (int)(cloudSprite.Texture.Width * 0.1);
-            leftHumerusOffsetY = (int)(cloudSprite.Texture.Height * 0.6);
-            leftUlnaOffset = -(int)(leftHumerusSprite.Texture.Width * 0.95);
-            leftHandOffset = -(int)(leftUlnaSprite.Texture.Width * 0.97);
+            leftHumerusOffsetX = (float)(cloudSprite.Texture.Width * 0.1);
+            leftHumerusOffsetY = (float)(cloudSprite.Texture.Height * 0.6);
+            leftUlnaOffset = -(float)(leftHumerusSprite.Texture.Width * 0.95);
+            leftHandOffset = -(float)(leftUlnaSprite.Texture.Width * 0.97);
 
-            rightHumerusOffsetX = (int)(cloudSprite.Texture.Width * 0.8);
-            rightHumerusOffsetY = (int)(cloudSprite.Texture.Height * 0.6);
-            rightUlnaOffset = (int)(rightHumerusSprite.Texture.Width * 0.95);
-            rightHandOffset = (int)(rightUlnaSprite.Texture.Width * 0.97);
+            rightHumerusOffsetX = (float)(cloudSprite.Texture.Width * 0.8);
+            rightHumerusOffsetY = (float)(cloudSprite.Texture.Height * 0.6);
+            rightUlnaOffset = (float)(rightHumerusSprite.Texture.Width * 0.95);
+            rightHandOffset = (float)(rightUlnaSprite.Texture.Width * 0.97);
 
             //Set left
             Vector2 newHumerusPosition = new Vector2();
@@ -245,12 +254,12 @@ namespace molnprojektet
             leftHumerusSprite.Rotation = humerusRotation;
 
             Vector2 newUlnaPosition = new Vector2();
-            newUlnaPosition.X = leftHumerusSprite.Position.X + (int)(Math.Cos(humerusRotation) * leftUlnaOffset);
-            newUlnaPosition.Y = leftHumerusSprite.Position.Y + (int)(Math.Sin(humerusRotation) * leftUlnaOffset);
+            newUlnaPosition.X = leftHumerusSprite.Position.X + (float)(Math.Cos(humerusRotation) * leftUlnaOffset);
+            newUlnaPosition.Y = leftHumerusSprite.Position.Y + (float)(Math.Sin(humerusRotation) * leftUlnaOffset);
 
             Vector2 newHandPosition = new Vector2();
-            newHandPosition.X = newUlnaPosition.X + (int)(Math.Cos(ulnaRotation) * leftHandOffset);
-            newHandPosition.Y = newUlnaPosition.Y + (int)(Math.Sin(ulnaRotation) * leftHandOffset);
+            newHandPosition.X = newUlnaPosition.X + (float)(Math.Cos(ulnaRotation) * leftHandOffset);
+            newHandPosition.Y = newUlnaPosition.Y + (float)(Math.Sin(ulnaRotation) * leftHandOffset);
 
             lock (locker)
             {
@@ -268,12 +277,12 @@ namespace molnprojektet
             rightHumerusSprite.Rotation = humerusRotation;
 
             Vector2 newUlnaPosition = new Vector2();
-            newUlnaPosition.X = rightHumerusSprite.Position.X + (int)(Math.Cos(humerusRotation) * rightUlnaOffset);
-            newUlnaPosition.Y = rightHumerusSprite.Position.Y + (int)(Math.Sin(humerusRotation) * rightUlnaOffset);
+            newUlnaPosition.X = rightHumerusSprite.Position.X + (float)(Math.Cos(humerusRotation) * rightUlnaOffset);
+            newUlnaPosition.Y = rightHumerusSprite.Position.Y + (float)(Math.Sin(humerusRotation) * rightUlnaOffset);
 
             Vector2 newHandPosition = new Vector2();
-            newHandPosition.X = newUlnaPosition.X + (int)(Math.Cos(ulnaRotation) * rightHandOffset);
-            newHandPosition.Y = newUlnaPosition.Y + (int)(Math.Sin(ulnaRotation) * rightHandOffset);
+            newHandPosition.X = newUlnaPosition.X + (float)(Math.Cos(ulnaRotation) * rightHandOffset);
+            newHandPosition.Y = newUlnaPosition.Y + (float)(Math.Sin(ulnaRotation) * rightHandOffset);
 
             lock (locker)
             {
@@ -297,7 +306,7 @@ namespace molnprojektet
                     shadePositions.Dequeue();
             }
 
-            byte alpha = 128;
+            byte alpha = 255;
             lock (locker)
             {
                 //TODO: Test if reverse order is needed
