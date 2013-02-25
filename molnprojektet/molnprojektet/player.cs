@@ -25,7 +25,7 @@ namespace molnprojektet
         private Dictionary<CloudDirection, Texture2D> cloudTextures;
 
         private const float acceleration = -3;
-        private const float MAX_SPEED = 50;
+        private const float MAX_SPEED = 5;
 
         private float rightHumerusOffsetX;
         private float rightHumerusOffsetY;
@@ -48,18 +48,35 @@ namespace molnprojektet
             get { return position; }
             set
             {
-                if (value.X > 0 && value.X + cloudSprite.Size.X < ScreenOffset.X &&
-                    value.Y > 0 && value.Y + cloudSprite.Size.Y < ScreenOffset.Y)
-                {
-                    Vector2 diffVector = value - position;
+                PositionHelper(value);
+                Vector2 adjustedPosition = position;
 
-                    foreach (Sprite sprite in spriteDict.Values)
-                        Utils.AddToSpritePosition(sprite, diffVector);
+                //Bound checking
+                if (position.X < 0)
+                    adjustedPosition.X = 0;
+                else if (position.X + cloudSprite.Size.X > ScreenOffset.X)
+                    adjustedPosition.X = ScreenOffset.X - cloudSprite.Size.X;
 
-                    cloudSprite.Position = value;
-                    position = value;
-                }
+                if (position.Y < 0)
+                    adjustedPosition.Y = 0;
+                else if (position.Y + cloudSprite.Size.Y > ScreenOffset.Y)
+                    adjustedPosition.Y = ScreenOffset.Y - cloudSprite.Size.Y;
+
+                if (adjustedPosition != position)
+                    PositionHelper(adjustedPosition);
             }
+        }
+
+        //Sets position of all sprites
+        private void PositionHelper(Vector2 v)
+        {
+            Vector2 diffVector = v - position;
+
+            foreach (Sprite sprite in spriteDict.Values)
+                Utils.AddToSpritePosition(sprite, diffVector);
+
+            cloudSprite.Position = v;
+            position = v;
         }
 
         public Vector2 Speed
@@ -72,13 +89,11 @@ namespace molnprojektet
                     speed = value;
                     if (value.X > MAX_SPEED)
                         speed.X = MAX_SPEED;
-
                     else if (value.X < -MAX_SPEED)
                         speed.X = -MAX_SPEED;
 
                     if (value.Y > MAX_SPEED)
                         speed.Y = MAX_SPEED;
-
                     else if (value.Y < -MAX_SPEED)
                         speed.Y = -MAX_SPEED;
                 }
@@ -174,7 +189,6 @@ namespace molnprojektet
             Vector2 newSpeed = Vector2.Zero;
             if (speed != Vector2.Zero)
             {
-                System.Console.WriteLine(speed.X);
                 if (speed.X > 0)
                     newSpeed.X = acceleration * (float)Utils.TicksToSeconds((currentTime - previusTime).Ticks) + speed.X;
                 else if (speed.X < 0)
@@ -188,7 +202,7 @@ namespace molnprojektet
                     newSpeed.X = 0;
                 if (newSpeed.Y < 0.15f && newSpeed.Y > -0.15f)
                     newSpeed.Y = 0;
-                speed = newSpeed;
+                Speed = newSpeed;
             }
             previusTime = currentTime;
 
@@ -296,39 +310,67 @@ namespace molnprojektet
 
         private Queue<Vector2> shadePositions;
         private DateTime shadeTimer = DateTime.Now;
+        // Amount of time between two shades
+        private const int ShadeAddDelay = 50;
+        // Minimum speed before shades appear
+        private const int ShadeSpeedThreshold = 0;
+        // Maximum number of shades
+        private const int MaxShades = 5;
+        // Initial shade transparency
+        private const float ShadeTransparency = 0.4f;
         
         private void DrawShades(GraphicsHandler g)
         {
             if (shadeTimer < DateTime.Now) 
             {
-                shadePositions.Enqueue(position);
-                if (shadePositions.Count > 5)
+                shadeTimer = DateTime.Now.AddMilliseconds(ShadeAddDelay);
+
+                if (speed.Length() > ShadeSpeedThreshold)
+                    shadePositions.Enqueue(position);
+                else if (shadePositions.Count > 0)
+                    shadePositions.Dequeue();
+
+                if (shadePositions.Count > MaxShades)
                     shadePositions.Dequeue();
             }
 
-            byte alpha = 255;
-            lock (locker)
+            if (shadePositions.Count > 0)
             {
-                //TODO: Test if reverse order is needed
-                foreach (Vector2 v in shadePositions.ToList<Vector2>())
+                float alpha = ShadeTransparency;
+                Vector2 startPosition = position;
+
+                lock (locker)
                 {
+                    Color color;
+                    //TODO: Test if reverse order is needed
+                    List<Vector2> reversedList = shadePositions.ToList<Vector2>();
+                    reversedList.Reverse();
+                    foreach (Vector2 v in reversedList)
+                    {
 
                         Position = v;
-                        Color color;
                         foreach (Sprite sprite in spriteDict.Values)
                         {
                             color = sprite.Color;
-                            color.A = alpha;
+                            color *= alpha;
+                            sprite.Color = color;
                             g.DrawSprite(sprite);
                         }
-                        alpha -= 20;
+                        alpha += 0.1f;
+                    }
+                    foreach (Sprite sprite in spriteDict.Values)
+                    {
+                        sprite.Color = Color.White;
+                    }
+                    Position = startPosition;
                 }
             }
         }
 
         public void Draw(GraphicsHandler g)
         {
-            lock(locker)
+            lock (locker)
+                DrawShades(g);
                 foreach(Sprite sprite in spriteDict.Values)
                     g.DrawSprite(sprite);
         }
