@@ -172,8 +172,6 @@ namespace molnprojektet
             game.PlayerCloud.SetRightArmRotation(rightHumerusAngle, rightUlnaAngle);
         }
         
-        private enum Arm {Left, Right};
-
         private float calculateArmAngle(JointType startJoint1, JointType endJoint1,
                              Arm arm)
         {

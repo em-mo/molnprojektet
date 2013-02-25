@@ -10,13 +10,6 @@ namespace molnprojektet
     class Player
     {
         enum PlayerSprites { Cloud, LeftHumerus, LeftUlna, LeftHand, RightHumerus, RightUlna, RightHand };
-        private Sprite cloudSprite;
-        private Sprite leftHumerusSprite;
-        private Sprite leftUlnaSprite;
-        private Sprite leftHandSprite;
-        private Sprite rightHumerusSprite;
-        private Sprite rightUlnaSprite;
-        private Sprite rightHandSprite;
         private Vector2 speed = new Vector2(0,0);
         private DateTime currentTime = DateTime.Now;
         private DateTime previusTime = DateTime.Now;
@@ -41,6 +34,17 @@ namespace molnprojektet
 
         private Vector2 position;
 
+        private Queue<Vector2> shadePositions;
+        private DateTime shadeTimer = DateTime.Now;
+        // Amount of time between two shades
+        private const int ShadeAddDelay = 40;
+        // Minimum speed before shades appear
+        private const int ShadeSpeedThreshold = 2;
+        // Maximum number of shades
+        private const int MaxShades = 5;
+        // Increment of shade transparencye
+        private const float ShadeTransparency = 1.2f;
+
         public readonly object locker = new object();
 
         public Vector2 Position
@@ -54,13 +58,13 @@ namespace molnprojektet
                 //Bound checking
                 if (position.X < 0)
                     adjustedPosition.X = 0;
-                else if (position.X + cloudSprite.Size.X > ScreenOffset.X)
-                    adjustedPosition.X = ScreenOffset.X - cloudSprite.Size.X;
+                else if (position.X + spriteDict[PlayerSprites.Cloud].Size.X > ScreenOffset.X)
+                    adjustedPosition.X = ScreenOffset.X - spriteDict[PlayerSprites.Cloud].Size.X;
 
                 if (position.Y < 0)
                     adjustedPosition.Y = 0;
-                else if (position.Y + cloudSprite.Size.Y > ScreenOffset.Y)
-                    adjustedPosition.Y = ScreenOffset.Y - cloudSprite.Size.Y;
+                else if (position.Y + spriteDict[PlayerSprites.Cloud].Size.Y > ScreenOffset.Y)
+                    adjustedPosition.Y = ScreenOffset.Y - spriteDict[PlayerSprites.Cloud].Size.Y;
 
                 if (adjustedPosition != position)
                     PositionHelper(adjustedPosition);
@@ -75,7 +79,7 @@ namespace molnprojektet
             foreach (Sprite sprite in spriteDict.Values)
                 Utils.AddToSpritePosition(sprite, diffVector);
 
-            cloudSprite.Position = v;
+            spriteDict[PlayerSprites.Cloud].Position = v;
             position = v;
         }
 
@@ -120,56 +124,42 @@ namespace molnprojektet
 
         private void InitSprites()
         {
-            cloudSprite = new Sprite();
-            leftHumerusSprite = new Sprite();
-            leftUlnaSprite = new Sprite();
-            leftHandSprite = new Sprite();
-            rightHumerusSprite = new Sprite();
-            rightUlnaSprite = new Sprite();
-            rightHandSprite = new Sprite();
 
-            cloudSprite.Initialize();
-            leftHumerusSprite.Initialize();
-            leftUlnaSprite.Initialize();
-            leftHandSprite.Initialize();
-            rightHumerusSprite.Initialize();
-            rightUlnaSprite.Initialize();
-            rightHandSprite.Initialize();
+            spriteDict = new Dictionary<PlayerSprites, Sprite>();
+
+            foreach (PlayerSprites sprite in Enum.GetValues(typeof(PlayerSprites)))
+            {
+                spriteDict.Add(sprite, new Sprite());
+                spriteDict[sprite].Initialize();
+            }
 
             cloudTextures = new Dictionary<CloudDirection, Texture2D>();
             cloudTextures.Add(CloudDirection.None, Game1.contentManager.Load<Texture2D>(@"Images\Cloud"));
             cloudTextures.Add(CloudDirection.Left, Game1.contentManager.Load<Texture2D>(@"Images\Cloud_Move_Left"));
             cloudTextures.Add(CloudDirection.Right, Game1.contentManager.Load<Texture2D>(@"Images\Cloud_Move_Right"));
 
-            cloudSprite.Texture = cloudTextures[CloudDirection.None];
-            leftHumerusSprite.Texture = Game1.contentManager.Load<Texture2D>(@"Images\Humerus_left");
-            leftUlnaSprite.Texture = Game1.contentManager.Load<Texture2D>(@"Images\Ulna_left");
-            leftHandSprite.Texture = Game1.contentManager.Load<Texture2D>(@"Images\Hand_left");
-            rightHumerusSprite.Texture = Game1.contentManager.Load<Texture2D>(@"Images\Humerus_right");
-            rightUlnaSprite.Texture = Game1.contentManager.Load<Texture2D>(@"Images\Ulna_right");
-            rightHandSprite.Texture = Game1.contentManager.Load<Texture2D>(@"Images\Hand_right");
+            spriteDict[PlayerSprites.Cloud].Texture = cloudTextures[CloudDirection.None];
+            spriteDict[PlayerSprites.LeftHumerus].Texture = Game1.contentManager.Load<Texture2D>(@"Images\Humerus_left");
+            spriteDict[PlayerSprites.LeftUlna].Texture = Game1.contentManager.Load<Texture2D>(@"Images\Ulna_left");
+            spriteDict[PlayerSprites.LeftHand].Texture = Game1.contentManager.Load<Texture2D>(@"Images\Hand_left");
+            spriteDict[PlayerSprites.RightHumerus].Texture = Game1.contentManager.Load<Texture2D>(@"Images\Humerus_right");
+            spriteDict[PlayerSprites.RightUlna].Texture = Game1.contentManager.Load<Texture2D>(@"Images\Ulna_right");
+            spriteDict[PlayerSprites.RightHand].Texture = Game1.contentManager.Load<Texture2D>(@"Images\Hand_right");
 
-            leftUlnaSprite.Layer = 0f;
-            rightUlnaSprite.Layer = 0f;
+            spriteDict[PlayerSprites.LeftUlna].Layer = 0f;
+            spriteDict[PlayerSprites.RightUlna].Layer = 0f;
 
             // Origin to right mid
-            leftHumerusSprite.Origin = new Vector2(leftHumerusSprite.Texture.Width, leftHumerusSprite.Texture.Height / 2);
-            leftUlnaSprite.Origin = new Vector2(leftUlnaSprite.Texture.Width, leftUlnaSprite.Texture.Height / 2);
-            leftHandSprite.Origin = new Vector2(leftHandSprite.Texture.Width, leftHandSprite.Texture.Height * 5 / 7);
+            spriteDict[PlayerSprites.LeftHumerus].Origin = new Vector2(spriteDict[PlayerSprites.LeftHumerus].Texture.Width, spriteDict[PlayerSprites.LeftHumerus].Texture.Height / 2);
+            spriteDict[PlayerSprites.LeftUlna].Origin = new Vector2(spriteDict[PlayerSprites.LeftUlna].Texture.Width, spriteDict[PlayerSprites.LeftUlna].Texture.Height / 2);
+            spriteDict[PlayerSprites.LeftHand].Origin = new Vector2(spriteDict[PlayerSprites.LeftHand].Texture.Width, spriteDict[PlayerSprites.LeftHand].Texture.Height * 5 / 7);
 
             //Origin to left mid
-            rightHumerusSprite.Origin = new Vector2(0, rightHumerusSprite.Texture.Height / 2);
-            rightUlnaSprite.Origin = new Vector2(0, rightUlnaSprite.Texture.Height / 2);
-            rightHandSprite.Origin = new Vector2(0, rightHandSprite.Texture.Height * 5 / 7);
+            spriteDict[PlayerSprites.RightHumerus].Origin = new Vector2(0, spriteDict[PlayerSprites.RightHumerus].Texture.Height / 2);
+            spriteDict[PlayerSprites.RightUlna].Origin = new Vector2(0, spriteDict[PlayerSprites.RightUlna].Texture.Height / 2);
+            spriteDict[PlayerSprites.RightHand].Origin = new Vector2(0, spriteDict[PlayerSprites.RightHand].Texture.Height * 5 / 7);
 
-            spriteDict = new Dictionary<PlayerSprites, Sprite>();
-            spriteDict.Add(PlayerSprites.Cloud, cloudSprite);
-            spriteDict.Add(PlayerSprites.RightUlna, rightUlnaSprite);
-            spriteDict.Add(PlayerSprites.LeftUlna, leftUlnaSprite);
-            spriteDict.Add(PlayerSprites.LeftHumerus, leftHumerusSprite);
-            spriteDict.Add(PlayerSprites.LeftHand, leftHandSprite);
-            spriteDict.Add(PlayerSprites.RightHumerus, rightHumerusSprite);
-            spriteDict.Add(PlayerSprites.RightHand, rightHandSprite);
+
         }
 
         public void UpdatePosition()
@@ -187,6 +177,7 @@ namespace molnprojektet
         {
             currentTime = DateTime.Now;
             Vector2 newSpeed = Vector2.Zero;
+            //Deccelerate
             if (speed != Vector2.Zero)
             {
                 if (speed.X > 0)
@@ -206,25 +197,26 @@ namespace molnprojektet
             }
             previusTime = currentTime;
 
+            // Change cloud image depending on movement direction and speed
             if (speed.X < -DirectionSpriteThreshold)
-                cloudSprite.Texture = cloudTextures[CloudDirection.Left];
+                spriteDict[PlayerSprites.Cloud].Texture = cloudTextures[CloudDirection.Left];
             else if (speed.X > DirectionSpriteThreshold)
-                cloudSprite.Texture = cloudTextures[CloudDirection.Right];
+                spriteDict[PlayerSprites.Cloud].Texture = cloudTextures[CloudDirection.Right];
             else
-                cloudSprite.Texture = cloudTextures[CloudDirection.None];
+                spriteDict[PlayerSprites.Cloud].Texture = cloudTextures[CloudDirection.None];
         }
 
         private void InitArms()
         {
-            leftHumerusOffsetX = (float)(cloudSprite.Texture.Width * 0.1);
-            leftHumerusOffsetY = (float)(cloudSprite.Texture.Height * 0.6);
-            leftUlnaOffset = -(float)(leftHumerusSprite.Texture.Width * 0.95);
-            leftHandOffset = -(float)(leftUlnaSprite.Texture.Width * 0.97);
+            leftHumerusOffsetX = (float)(spriteDict[PlayerSprites.Cloud].Texture.Width * 0.1);
+            leftHumerusOffsetY = (float)(spriteDict[PlayerSprites.Cloud].Texture.Height * 0.6);
+            leftUlnaOffset = -(float)(spriteDict[PlayerSprites.LeftHumerus].Texture.Width * 0.95);
+            leftHandOffset = -(float)(spriteDict[PlayerSprites.LeftUlna].Texture.Width * 0.97);
 
-            rightHumerusOffsetX = (float)(cloudSprite.Texture.Width * 0.8);
-            rightHumerusOffsetY = (float)(cloudSprite.Texture.Height * 0.6);
-            rightUlnaOffset = (float)(rightHumerusSprite.Texture.Width * 0.95);
-            rightHandOffset = (float)(rightUlnaSprite.Texture.Width * 0.97);
+            rightHumerusOffsetX = (float)(spriteDict[PlayerSprites.Cloud].Texture.Width * 0.8);
+            rightHumerusOffsetY = (float)(spriteDict[PlayerSprites.Cloud].Texture.Height * 0.6);
+            rightUlnaOffset = (float)(spriteDict[PlayerSprites.RightHumerus].Texture.Width * 0.95);
+            rightHandOffset = (float)(spriteDict[PlayerSprites.RightUlna].Texture.Width * 0.97);
 
             //Set left
             Vector2 newHumerusPosition = new Vector2();
@@ -239,9 +231,9 @@ namespace molnprojektet
             newHandPosition.X = newUlnaPosition.X + leftHandOffset;
             newHandPosition.Y = newUlnaPosition.Y;
 
-            leftHumerusSprite.Position = newHumerusPosition;
-            leftUlnaSprite.Position = newUlnaPosition;
-            leftHandSprite.Position = newHandPosition;
+            spriteDict[PlayerSprites.LeftHumerus].Position = newHumerusPosition;
+            spriteDict[PlayerSprites.LeftUlna].Position = newUlnaPosition;
+            spriteDict[PlayerSprites.LeftHand].Position = newHandPosition;
 
             //Set right
             newHumerusPosition = new Vector2();
@@ -256,20 +248,21 @@ namespace molnprojektet
             newHandPosition.X = newUlnaPosition.X + rightHandOffset;
             newHandPosition.Y = newUlnaPosition.Y;
 
-            rightHumerusSprite.Position = newHumerusPosition;
-            rightUlnaSprite.Position = newUlnaPosition;
-            rightHandSprite.Position = newHandPosition;
+            spriteDict[PlayerSprites.RightHumerus].Position = newHumerusPosition;
+            spriteDict[PlayerSprites.RightUlna].Position = newUlnaPosition;
+            spriteDict[PlayerSprites.RightHand].Position = newHandPosition;
 
         }
 
+        // Angles in radians
         public void SetLeftArmRotation(float humerusRotation, float ulnaRotation)
         {
 
-            leftHumerusSprite.Rotation = humerusRotation;
+            spriteDict[PlayerSprites.LeftHumerus].Rotation = humerusRotation;
 
             Vector2 newUlnaPosition = new Vector2();
-            newUlnaPosition.X = leftHumerusSprite.Position.X + (float)(Math.Cos(humerusRotation) * leftUlnaOffset);
-            newUlnaPosition.Y = leftHumerusSprite.Position.Y + (float)(Math.Sin(humerusRotation) * leftUlnaOffset);
+            newUlnaPosition.X = spriteDict[PlayerSprites.LeftHumerus].Position.X + (float)(Math.Cos(humerusRotation) * leftUlnaOffset);
+            newUlnaPosition.Y = spriteDict[PlayerSprites.LeftHumerus].Position.Y + (float)(Math.Sin(humerusRotation) * leftUlnaOffset);
 
             Vector2 newHandPosition = new Vector2();
             newHandPosition.X = newUlnaPosition.X + (float)(Math.Cos(ulnaRotation) * leftHandOffset);
@@ -277,22 +270,23 @@ namespace molnprojektet
 
             lock (locker)
             {
-                leftUlnaSprite.Position = newUlnaPosition;
-                leftUlnaSprite.Rotation = ulnaRotation;
+                spriteDict[PlayerSprites.LeftUlna].Position = newUlnaPosition;
+                spriteDict[PlayerSprites.LeftUlna].Rotation = ulnaRotation;
 
-                leftHandSprite.Position = newHandPosition;
-                leftHandSprite.Rotation = ulnaRotation;
+                spriteDict[PlayerSprites.LeftHand].Position = newHandPosition;
+                spriteDict[PlayerSprites.LeftHand].Rotation = ulnaRotation;
             }
         }
 
+        // Angles in radians
         public void SetRightArmRotation(float humerusRotation, float ulnaRotation)
         {
 
-            rightHumerusSprite.Rotation = humerusRotation;
+            spriteDict[PlayerSprites.RightHumerus].Rotation = humerusRotation;
 
             Vector2 newUlnaPosition = new Vector2();
-            newUlnaPosition.X = rightHumerusSprite.Position.X + (float)(Math.Cos(humerusRotation) * rightUlnaOffset);
-            newUlnaPosition.Y = rightHumerusSprite.Position.Y + (float)(Math.Sin(humerusRotation) * rightUlnaOffset);
+            newUlnaPosition.X = spriteDict[PlayerSprites.RightHumerus].Position.X + (float)(Math.Cos(humerusRotation) * rightUlnaOffset);
+            newUlnaPosition.Y = spriteDict[PlayerSprites.RightHumerus].Position.Y + (float)(Math.Sin(humerusRotation) * rightUlnaOffset);
 
             Vector2 newHandPosition = new Vector2();
             newHandPosition.X = newUlnaPosition.X + (float)(Math.Cos(ulnaRotation) * rightHandOffset);
@@ -300,24 +294,13 @@ namespace molnprojektet
 
             lock (locker)
             {
-                rightUlnaSprite.Position = newUlnaPosition;
-                rightUlnaSprite.Rotation = ulnaRotation;
+                spriteDict[PlayerSprites.RightUlna].Position = newUlnaPosition;
+                spriteDict[PlayerSprites.RightUlna].Rotation = ulnaRotation;
 
-                rightHandSprite.Position = newHandPosition;
-                rightHandSprite.Rotation = ulnaRotation;
+                spriteDict[PlayerSprites.RightHand].Position = newHandPosition;
+                spriteDict[PlayerSprites.RightHand].Rotation = ulnaRotation;
             }
         }
-
-        private Queue<Vector2> shadePositions;
-        private DateTime shadeTimer = DateTime.Now;
-        // Amount of time between two shades
-        private const int ShadeAddDelay = 50;
-        // Minimum speed before shades appear
-        private const int ShadeSpeedThreshold = 0;
-        // Maximum number of shades
-        private const int MaxShades = 5;
-        // Initial shade transparency
-        private const float ShadeTransparency = 0.4f;
         
         private void DrawShades(GraphicsHandler g)
         {
@@ -342,9 +325,14 @@ namespace molnprojektet
                 lock (locker)
                 {
                     Color color;
+
+                    foreach (Sprite sprite in spriteDict.Values)
+                    {
+                        color = new Color(30, 30, 30, 30);
+                        sprite.Color = color;
+                    }
                     //TODO: Test if reverse order is needed
                     List<Vector2> reversedList = shadePositions.ToList<Vector2>();
-                    reversedList.Reverse();
                     foreach (Vector2 v in reversedList)
                     {
 
@@ -356,7 +344,6 @@ namespace molnprojektet
                             sprite.Color = color;
                             g.DrawSprite(sprite);
                         }
-                        alpha += 0.1f;
                     }
                     foreach (Sprite sprite in spriteDict.Values)
                     {
@@ -364,6 +351,17 @@ namespace molnprojektet
                     }
                     Position = startPosition;
                 }
+            }
+        }
+
+        private Queue<WindPuffMessage> windPuffQueue = new Queue<WindPuffMessage>();
+
+        private void DrawWindPuff(GraphicsHandler g)
+        {
+            WindPuffMessage message;
+            while (windPuffQueue.Count > 0)
+            {
+                message = windPuffQueue.Dequeue();
             }
         }
 

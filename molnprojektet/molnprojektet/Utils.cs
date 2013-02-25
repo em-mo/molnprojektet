@@ -7,6 +7,27 @@ using Microsoft.Xna.Framework;
 
 namespace molnprojektet
 {
+    enum Arm { Left, Right };
+
+    // Angle in radians
+    struct WindPuffMessage
+    {
+        private float direction;
+        private Arm arm;
+
+        public Arm Arm
+        {
+            get { return arm; }
+            set { arm = value; }
+        }
+
+        public float Direction
+        {
+            get { return direction; }
+            set { direction = value; }
+        }
+    }
+
     class Utils
     {
         public static double CalculateAngle(Vector3 vector1, Vector3 vector2)
