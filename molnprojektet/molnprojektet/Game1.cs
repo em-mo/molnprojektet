@@ -9,6 +9,7 @@ using Microsoft.Xna.Framework.GamerServices;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Media;
+using System.Diagnostics;
 
 namespace molnprojektet
 {
@@ -24,6 +25,8 @@ namespace molnprojektet
         Thread kinectThread;
         KinectHandler kinectHandler;
 
+        private const float FPS = 200;
+
         //private KinectHandler kinectHandler;
 
         public Game1()
@@ -32,6 +35,8 @@ namespace molnprojektet
             contentManager = new ContentManager(Services);
             contentManager.RootDirectory = "Content";
             windowHandler = new WindowHandler();
+
+            this.TargetElapsedTime = TimeSpan.FromSeconds(1 / FPS);
 
             graphics.PreferredBackBufferWidth = 1280;//GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width *3 / 4;
             graphics.PreferredBackBufferHeight = 720; // GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height * 3 / 4;
@@ -87,12 +92,11 @@ namespace molnprojektet
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed)
                 this.Exit();
             // TODO: Add your update logic here
-            windowHandler.UpdateWindow();
+            windowHandler.UpdateWindow(gameTime);
             base.Update(gameTime);
-
-            Thread.Sleep(10);
         }
 
+        private Stopwatch stopWatch = new Stopwatch();
         /// <summary>
         /// This is called when the game should draw itself.
         /// </summary>
@@ -101,7 +105,7 @@ namespace molnprojektet
         {
             spriteBatch.Begin();
             GraphicsDevice.Clear(Color.CornflowerBlue);
-            windowHandler.DrawWindowGraphics();
+            windowHandler.DrawWindowGraphics(gameTime);
             base.Draw(gameTime);
             spriteBatch.End();
         }

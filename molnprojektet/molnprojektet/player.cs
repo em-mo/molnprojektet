@@ -18,8 +18,8 @@ namespace molnprojektet
         private Dictionary<CloudDirection, Texture2D> cloudTextures;
         private Sprite windPuff;
 
-        private const float acceleration = -3;
-        private const float MAX_SPEED = 5;
+        private const float acceleration = -70;
+        private const float MAX_SPEED = 300;
 
         private float rightHumerusOffsetX;
         private float rightHumerusOffsetY;
@@ -58,14 +58,26 @@ namespace molnprojektet
 
                 //Bound checking
                 if (position.X < 0)
+                {
                     adjustedPosition.X = 0;
+                    speed.X = 0;
+                }
                 else if (position.X + spriteDict[PlayerSprites.Cloud].Size.X > ScreenOffset.X)
+                {
                     adjustedPosition.X = ScreenOffset.X - spriteDict[PlayerSprites.Cloud].Size.X;
+                    speed.X = 0;
+                }
 
                 if (position.Y < 0)
+                {
                     adjustedPosition.Y = 0;
+                    speed.Y = 0;
+                }
                 else if (position.Y + spriteDict[PlayerSprites.Cloud].Size.Y > ScreenOffset.Y)
+                {
                     adjustedPosition.Y = ScreenOffset.Y - spriteDict[PlayerSprites.Cloud].Size.Y;
+                    speed.Y = 0;
+                }
 
                 if (adjustedPosition != position)
                     PositionHelper(adjustedPosition);
@@ -153,48 +165,52 @@ namespace molnprojektet
             spriteDict[PlayerSprites.LeftUlna].Layer = 0f;
             spriteDict[PlayerSprites.RightUlna].Layer = 0f;
 
+            spriteDict[PlayerSprites.Cloud].Scale = Vector2.One * 0.6f;
+
             // Origin to right mid
-            spriteDict[PlayerSprites.LeftHumerus].Origin = new Vector2(spriteDict[PlayerSprites.LeftHumerus].Texture.Width, spriteDict[PlayerSprites.LeftHumerus].Texture.Height / 2);
-            spriteDict[PlayerSprites.LeftUlna].Origin = new Vector2(spriteDict[PlayerSprites.LeftUlna].Texture.Width, spriteDict[PlayerSprites.LeftUlna].Texture.Height / 2);
-            spriteDict[PlayerSprites.LeftHand].Origin = new Vector2(spriteDict[PlayerSprites.LeftHand].Texture.Width, spriteDict[PlayerSprites.LeftHand].Texture.Height * 5 / 7);
+            spriteDict[PlayerSprites.LeftHumerus].Origin = new Vector2(spriteDict[PlayerSprites.LeftHumerus].Size.X, spriteDict[PlayerSprites.LeftHumerus].Size.Y / 2);
+            spriteDict[PlayerSprites.LeftUlna].Origin = new Vector2(spriteDict[PlayerSprites.LeftUlna].Size.X, spriteDict[PlayerSprites.LeftUlna].Size.Y / 2);
+            spriteDict[PlayerSprites.LeftHand].Origin = new Vector2(spriteDict[PlayerSprites.LeftHand].Size.X, spriteDict[PlayerSprites.LeftHand].Size.Y * 5 / 7);
 
             //Origin to left mid
-            spriteDict[PlayerSprites.RightHumerus].Origin = new Vector2(0, spriteDict[PlayerSprites.RightHumerus].Texture.Height / 2);
-            spriteDict[PlayerSprites.RightUlna].Origin = new Vector2(0, spriteDict[PlayerSprites.RightUlna].Texture.Height / 2);
-            spriteDict[PlayerSprites.RightHand].Origin = new Vector2(0, spriteDict[PlayerSprites.RightHand].Texture.Height * 5 / 7);
+            spriteDict[PlayerSprites.RightHumerus].Origin = new Vector2(0, spriteDict[PlayerSprites.RightHumerus].Size.Y / 2);
+            spriteDict[PlayerSprites.RightUlna].Origin = new Vector2(0, spriteDict[PlayerSprites.RightUlna].Size.Y / 2);
+            spriteDict[PlayerSprites.RightHand].Origin = new Vector2(0, spriteDict[PlayerSprites.RightHand].Size.Y * 5 / 7);
 
             //Origin center
-            windPuff.Origin = new Vector2(windPuff.Texture.Width / 2, windPuff.Texture.Height / 2);
+            windPuff.Origin = new Vector2(windPuff.Size.X / 2, windPuff.Size.Y / 2);
 
 
         }
 
-        public void UpdatePosition()
+        public void Update(GameTime gameTime)
         {
             lock (this.locker)
             {
-                UpdateSpeed();
-                Position += speed;
+                UpdateSpeed(gameTime);
+                Position += speed * (float)gameTime.ElapsedGameTime.TotalSeconds;
             }
         }
 
         private static float DirectionSpriteThreshold = 4;
 
-        private void UpdateSpeed()
+        /// <summary>
+        /// Updates the change of speed over time
+        /// </summary>
+        private void UpdateSpeed(GameTime gameTime)
         {
-            currentTime = DateTime.Now;
             Vector2 newSpeed = Vector2.Zero;
             //Deccelerate
             if (speed != Vector2.Zero)
             {
                 if (speed.X > 0)
-                    newSpeed.X = acceleration * (float)Utils.TicksToSeconds((currentTime - previusTime).Ticks) + speed.X;
+                    newSpeed.X = acceleration * (float)gameTime.ElapsedGameTime.TotalSeconds + speed.X;
                 else if (speed.X < 0)
-                    newSpeed.X = (-acceleration) * (float)Utils.TicksToSeconds((currentTime - previusTime).Ticks) + speed.X;
+                    newSpeed.X = (-acceleration) * (float)gameTime.ElapsedGameTime.TotalSeconds + speed.X;
                 if (speed.Y > 0)
-                    newSpeed.Y = acceleration * (float)Utils.TicksToSeconds((currentTime - previusTime).Ticks) + speed.Y;
+                    newSpeed.Y = acceleration * (float)gameTime.ElapsedGameTime.TotalSeconds + speed.Y;
                 else if (speed.Y < 0)
-                    newSpeed.Y = (-acceleration) * (float)Utils.TicksToSeconds((currentTime - previusTime).Ticks) + speed.Y;
+                    newSpeed.Y = (-acceleration) * (float)gameTime.ElapsedGameTime.TotalSeconds + speed.Y;
 
                 if (newSpeed.X < 0.15f && newSpeed.X > -0.15f)
                     newSpeed.X = 0;
@@ -202,7 +218,6 @@ namespace molnprojektet
                     newSpeed.Y = 0;
                 Speed = newSpeed;
             }
-            previusTime = currentTime;
 
             // Change cloud image depending on movement direction and speed
             if (speed.X < -DirectionSpriteThreshold)
@@ -215,15 +230,15 @@ namespace molnprojektet
 
         private void InitArms()
         {
-            leftHumerusOffsetX = (float)(spriteDict[PlayerSprites.Cloud].Texture.Width * 0.1);
-            leftHumerusOffsetY = (float)(spriteDict[PlayerSprites.Cloud].Texture.Height * 0.6);
-            leftUlnaOffset = -(float)(spriteDict[PlayerSprites.LeftHumerus].Texture.Width * 0.95);
-            leftHandOffset = -(float)(spriteDict[PlayerSprites.LeftUlna].Texture.Width * 0.97);
+            leftHumerusOffsetX = (float)(spriteDict[PlayerSprites.Cloud].Size.X * 0.1);
+            leftHumerusOffsetY = (float)(spriteDict[PlayerSprites.Cloud].Size.Y * 0.6);
+            leftUlnaOffset = -(float)(spriteDict[PlayerSprites.LeftHumerus].Size.X * 0.95);
+            leftHandOffset = -(float)(spriteDict[PlayerSprites.LeftUlna].Size.X * 0.97);
 
-            rightHumerusOffsetX = (float)(spriteDict[PlayerSprites.Cloud].Texture.Width * 0.8);
-            rightHumerusOffsetY = (float)(spriteDict[PlayerSprites.Cloud].Texture.Height * 0.6);
-            rightUlnaOffset = (float)(spriteDict[PlayerSprites.RightHumerus].Texture.Width * 0.95);
-            rightHandOffset = (float)(spriteDict[PlayerSprites.RightUlna].Texture.Width * 0.97);
+            rightHumerusOffsetX = (float)(spriteDict[PlayerSprites.Cloud].Size.X * 0.8);
+            rightHumerusOffsetY = (float)(spriteDict[PlayerSprites.Cloud].Size.Y * 0.6);
+            rightUlnaOffset = (float)(spriteDict[PlayerSprites.RightHumerus].Size.X * 0.95);
+            rightHandOffset = (float)(spriteDict[PlayerSprites.RightUlna].Size.X * 0.97);
 
             //Set left
             Vector2 newHumerusPosition = new Vector2();
@@ -261,7 +276,11 @@ namespace molnprojektet
 
         }
 
-        // Angles in radians
+        /// <summary>
+        /// Rotates all three sections of the arm
+        /// </summary>
+        /// <param name="humerusRotation">Clockwise rotation in radians</param>
+        /// <param name="ulnaRotation">Clockwise rotation in radians</param>
         public void SetLeftArmRotation(float humerusRotation, float ulnaRotation)
         {
 
@@ -285,7 +304,11 @@ namespace molnprojektet
             }
         }
 
-        // Angles in radians
+        /// <summary>
+        /// Rotates all three sections of the arm
+        /// </summary>
+        /// <param name="humerusRotation">Clockwise rotation in radians</param>
+        /// <param name="ulnaRotation">Clockwise rotation in radians</param>
         public void SetRightArmRotation(float humerusRotation, float ulnaRotation)
         {
 
@@ -392,7 +415,6 @@ namespace molnprojektet
 
                 windPuff.Position = puff.Position;
                 windPuff.Rotation = puff.Direction;
-                System.Console.WriteLine(Position);
 
                 g.DrawSprite(windPuff);
 

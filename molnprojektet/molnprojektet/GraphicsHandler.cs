@@ -21,7 +21,7 @@ namespace molnprojektet
             foreach (Sprite sprite in spriteList)
 	        {
                 if(sprite.Size != Vector2.Zero && sprite.IsShowing)
-                    batch.Draw(sprite.Texture, sprite.Position, new Rectangle(0, 0, (int)sprite.Size.X, (int)sprite.Size.Y), sprite.Color, sprite.Rotation, sprite.Origin, sprite.Scale, sprite.Effects, sprite.Layer);
+                    batch.Draw(sprite.Texture, sprite.Position, null, sprite.Color, sprite.Rotation, sprite.Origin, sprite.Scale, sprite.Effects, sprite.Layer);
                 else if (sprite.IsShowing)
                     batch.Draw(sprite.Texture, sprite.Position, null, sprite.Color, sprite.Rotation, sprite.Origin, sprite.Scale, sprite.Effects, sprite.Layer);
             }       
@@ -30,7 +30,7 @@ namespace molnprojektet
         public void DrawSprite(Sprite sprite)
         {
             if (sprite.Size != Vector2.Zero && sprite.IsShowing)
-                batch.Draw(sprite.Texture, sprite.Position, new Rectangle(0, 0, (int)sprite.Size.X, (int)sprite.Size.Y), sprite.Color, sprite.Rotation, sprite.Origin, sprite.Scale, sprite.Effects, sprite.Layer);
+                batch.Draw(sprite.Texture, sprite.Position, null, sprite.Color, sprite.Rotation, sprite.Origin, sprite.Scale, sprite.Effects, sprite.Layer);
             else if (sprite.IsShowing)
                 batch.Draw(sprite.Texture, sprite.Position, null, sprite.Color, sprite.Rotation, sprite.Origin, sprite.Scale, sprite.Effects, sprite.Layer);
         }

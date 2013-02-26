@@ -51,8 +51,7 @@ namespace molnprojektet
             get { return size; }
             set
             {
-                if (size != value)
-                    size = value;
+                    size = value * scale;
             }
         }
 
@@ -61,7 +60,7 @@ namespace molnprojektet
             get { return texture; }
             set { 
                     texture = value;
-                    size = new Vector2(texture.Width, texture.Height);
+                    Size = new Vector2(texture.Width, texture.Height);
                 }
         }
 
@@ -86,7 +85,11 @@ namespace molnprojektet
         public Vector2 Scale
         {
             get { return scale; }
-            set { scale = value; }
+            set 
+            { 
+                scale = value;
+                size *= scale;
+            }
         }
         
         public SpriteEffects Effects

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework;
 
 namespace molnprojektet
 {
@@ -11,14 +12,14 @@ namespace molnprojektet
     {
         private Window currentWindow;
 
-        public void UpdateWindow()
+        public void UpdateWindow(GameTime gameTime)
         {
-            currentWindow.Update();
+            currentWindow.Update(gameTime);
         }
 
-        public void DrawWindowGraphics()
+        public void DrawWindowGraphics(GameTime gameTime)
         {
-            currentWindow.Draw();
+            currentWindow.Draw(gameTime);
         }
         
         public void ChangeWindow(Window newWindow)

@@ -43,9 +43,9 @@ namespace molnprojektet
 
         private bool[] keysDown = new bool[4];
 
-        public void Update()
+        public void Update(GameTime gameTime)
         {
-            playerCloud.UpdatePosition();
+            playerCloud.Update(gameTime);
 
             #region Key States
             KeyboardState newState = Keyboard.GetState();
@@ -91,29 +91,29 @@ namespace molnprojektet
         {
             playerCloud.AddWindPuff((float)Math.PI / 2, Arm.Right);
             lock (playerCloud.locker)
-                playerCloud.Speed += new Vector2(0,-2);
+                playerCloud.Speed += new Vector2(0,-100);
         }
         public void SwipeDown()
         {
             playerCloud.AddWindPuff((float)-Math.PI / 2, Arm.Left);
             lock (playerCloud.locker)
-                playerCloud.Speed += new Vector2(0, 2);
+                playerCloud.Speed += new Vector2(0, 100);
         }
         public void SwipeLeft()
         {
             playerCloud.AddWindPuff(0, Arm.Right);
             lock (playerCloud.locker)
-                playerCloud.Speed += new Vector2(-2, 0);
+                playerCloud.Speed += new Vector2(-100, 0);
         }
         public void SwipeRight()
         {
             playerCloud.AddWindPuff((float)Math.PI, Arm.Left);
             lock (playerCloud.locker)
-                playerCloud.Speed += new Vector2(2, 0);
+                playerCloud.Speed += new Vector2(100, 0);
         }
 
 
-        public void Draw()
+        public void Draw(GameTime gameTime)
         {
             graphicsHandler.DrawSprites(backgroundSprites);
             graphicsHandler.DrawSprites(spriteList);
