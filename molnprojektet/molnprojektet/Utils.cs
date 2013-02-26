@@ -10,27 +10,37 @@ namespace molnprojektet
     enum Arm { Left, Right };
 
     // Angle in radians
-    struct WindPuffMessage
+    class WindPuffMessage
     {
         private float direction;
-        private Arm arm;
+        private Vector2 position;
+        private DateTime ttl;
 
-        public WindPuffMessage(float direction, Arm arm)
+        public WindPuffMessage(float direction, Vector2 position)
         {
             this.direction = direction;
-            this.arm = arm;
+            this.position = position;
+            ttl = DateTime.Now.AddSeconds(1);
         }
 
-        public Arm Arm
+        public Vector2 Position
         {
-            get { return arm; }
-            set { arm = value; }
+            get { return position; }
+            set { this.position = value; }
         }
 
         public float Direction
         {
             get { return direction; }
             set { direction = value; }
+        }
+
+        public bool checkAge()
+        {
+            if (ttl < DateTime.Now)
+                return true;
+            else
+                return false;
         }
     }
 

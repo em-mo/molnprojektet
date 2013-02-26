@@ -361,38 +361,43 @@ namespace molnprojektet
             }
         }
 
-        private Queue<WindPuffMessage> windPuffQueue = new Queue<WindPuffMessage>();
+        private List<WindPuffMessage> windPuffList = new List<WindPuffMessage>();
 
         public void AddWindPuff(float direction, Arm arm)
         {
-            windPuffQueue.Enqueue(new WindPuffMessage(direction, arm));
+            Sprite hand;
+            float offset;
+            if (arm == Arm.Left)
+            {
+                hand = spriteDict[PlayerSprites.LeftHand];
+                offset = -hand.Size.X;
+            }
+            else
+            {
+                hand = spriteDict[PlayerSprites.RightHand];
+                offset = hand.Size.X;
+            }
+
+            Vector2 position = new Vector2(hand.Position.X + offset, hand.Position.Y);
+
+            windPuffList.Add(new WindPuffMessage(direction, position));
         }
 
         private void DrawWindPuff(GraphicsHandler g)
         {
-            WindPuffMessage message;
-            while (windPuffQueue.Count > 0)
+            WindPuffMessage puff;
+            for (int i = windPuffList.Count - 1; i >= 0; i--)
             {
-                message = windPuffQueue.Dequeue();
-                
-                Sprite hand;
-                float offset;
-                if (message.Arm == Arm.Left)
-                {
-                    hand = spriteDict[PlayerSprites.LeftHand];
-                    offset = -hand.Size.X;
-                }
-                else
-                {
-                    hand = spriteDict[PlayerSprites.RightHand];
-                    offset = hand.Size.X;
-                }
+                puff = windPuffList.ElementAt(i);
 
-                windPuff.Position = new Vector2(hand.Position.X + offset, hand.Position.Y);
-                windPuff.Rotation = message.Direction;
+                windPuff.Position = puff.Position;
+                windPuff.Rotation = puff.Direction;
                 System.Console.WriteLine(Position);
 
                 g.DrawSprite(windPuff);
+
+                if (puff.checkAge())
+                    windPuffList.RemoveAt(i);
             }
         }
 
