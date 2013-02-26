@@ -15,6 +15,12 @@ namespace molnprojektet
         private float direction;
         private Arm arm;
 
+        public WindPuffMessage(float direction, Arm arm)
+        {
+            this.direction = direction;
+            this.arm = arm;
+        }
+
         public Arm Arm
         {
             get { return arm; }

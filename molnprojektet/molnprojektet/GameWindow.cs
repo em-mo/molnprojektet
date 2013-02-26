@@ -89,21 +89,25 @@ namespace molnprojektet
 
         public void SwipeUp()
         {
+            playerCloud.AddWindPuff((float)Math.PI / 2, Arm.Right);
             lock (playerCloud.locker)
                 playerCloud.Speed += new Vector2(0,-2);
         }
         public void SwipeDown()
         {
+            playerCloud.AddWindPuff((float)-Math.PI / 2, Arm.Left);
             lock (playerCloud.locker)
                 playerCloud.Speed += new Vector2(0, 2);
         }
         public void SwipeLeft()
         {
+            playerCloud.AddWindPuff(0, Arm.Right);
             lock (playerCloud.locker)
                 playerCloud.Speed += new Vector2(-2, 0);
         }
         public void SwipeRight()
         {
+            playerCloud.AddWindPuff((float)Math.PI, Arm.Left);
             lock (playerCloud.locker)
                 playerCloud.Speed += new Vector2(2, 0);
         }

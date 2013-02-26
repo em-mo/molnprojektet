@@ -16,6 +16,7 @@ namespace molnprojektet
 
         enum CloudDirection {None, Left, Right}
         private Dictionary<CloudDirection, Texture2D> cloudTextures;
+        private Sprite windPuff;
 
         private const float acceleration = -3;
         private const float MAX_SPEED = 5;
@@ -132,12 +133,15 @@ namespace molnprojektet
                 spriteDict.Add(sprite, new Sprite());
                 spriteDict[sprite].Initialize();
             }
+            windPuff = new Sprite();
+            windPuff.Initialize();
 
             cloudTextures = new Dictionary<CloudDirection, Texture2D>();
             cloudTextures.Add(CloudDirection.None, Game1.contentManager.Load<Texture2D>(@"Images\Cloud"));
             cloudTextures.Add(CloudDirection.Left, Game1.contentManager.Load<Texture2D>(@"Images\Cloud_Move_Left"));
             cloudTextures.Add(CloudDirection.Right, Game1.contentManager.Load<Texture2D>(@"Images\Cloud_Move_Right"));
 
+            windPuff.Texture = Game1.contentManager.Load<Texture2D>(@"Images\wind");
             spriteDict[PlayerSprites.Cloud].Texture = cloudTextures[CloudDirection.None];
             spriteDict[PlayerSprites.LeftHumerus].Texture = Game1.contentManager.Load<Texture2D>(@"Images\Humerus_left");
             spriteDict[PlayerSprites.LeftUlna].Texture = Game1.contentManager.Load<Texture2D>(@"Images\Ulna_left");
@@ -158,6 +162,9 @@ namespace molnprojektet
             spriteDict[PlayerSprites.RightHumerus].Origin = new Vector2(0, spriteDict[PlayerSprites.RightHumerus].Texture.Height / 2);
             spriteDict[PlayerSprites.RightUlna].Origin = new Vector2(0, spriteDict[PlayerSprites.RightUlna].Texture.Height / 2);
             spriteDict[PlayerSprites.RightHand].Origin = new Vector2(0, spriteDict[PlayerSprites.RightHand].Texture.Height * 5 / 7);
+
+            //Origin center
+            windPuff.Origin = new Vector2(windPuff.Texture.Width / 2, windPuff.Texture.Height / 2);
 
 
         }
@@ -356,18 +363,43 @@ namespace molnprojektet
 
         private Queue<WindPuffMessage> windPuffQueue = new Queue<WindPuffMessage>();
 
+        public void AddWindPuff(float direction, Arm arm)
+        {
+            windPuffQueue.Enqueue(new WindPuffMessage(direction, arm));
+        }
+
         private void DrawWindPuff(GraphicsHandler g)
         {
             WindPuffMessage message;
             while (windPuffQueue.Count > 0)
             {
                 message = windPuffQueue.Dequeue();
+                
+                Sprite hand;
+                float offset;
+                if (message.Arm == Arm.Left)
+                {
+                    hand = spriteDict[PlayerSprites.LeftHand];
+                    offset = -hand.Size.X;
+                }
+                else
+                {
+                    hand = spriteDict[PlayerSprites.RightHand];
+                    offset = hand.Size.X;
+                }
+
+                windPuff.Position = new Vector2(hand.Position.X + offset, hand.Position.Y);
+                windPuff.Rotation = message.Direction;
+                System.Console.WriteLine(Position);
+
+                g.DrawSprite(windPuff);
             }
         }
 
         public void Draw(GraphicsHandler g)
         {
             lock (locker)
+                DrawWindPuff(g);
                 DrawShades(g);
                 foreach(Sprite sprite in spriteDict.Values)
                     g.DrawSprite(sprite);
