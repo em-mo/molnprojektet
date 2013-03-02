@@ -8,6 +8,7 @@ using Microsoft.Xna.Framework;
 namespace molnprojektet
 {
     enum Arm { Left, Right };
+    enum Direction { None, Left, Right };
 
     // Angle in radians
     class WindPuffMessage
