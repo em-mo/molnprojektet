@@ -13,7 +13,7 @@ namespace molnprojektet
 
         private const float SWIPE_INITIALIZE_VALUE = 0F;
         private const float SWIPE_DELTA_QOTIENT = 1.7F;
-        private const float SWIPE_THRESHOLD = 0.17F;
+        private const float SWIPE_THRESHOLD = 0.25F;
         
         //Right hand DOWN
         private float right_DownDeltaBuffer;

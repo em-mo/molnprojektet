@@ -18,8 +18,8 @@ namespace molnprojektet
         private Dictionary<CloudDirection, Texture2D> cloudTextures;
         private Sprite windPuff;
 
-        private const float acceleration = -70;
-        private const float MAX_SPEED = 300;
+        private const float acceleration = -150;
+        private const float MAX_SPEED = 500;
 
         private float rightHumerusOffsetX;
         private float rightHumerusOffsetY;
@@ -31,6 +31,7 @@ namespace molnprojektet
         private float leftHandOffset;
         private Vector2 ScreenOffset;
 
+        private List<Sprite> rainDrops = new List<Sprite>();
         private Dictionary<PlayerSprites, Sprite> spriteDict;
 
         private Vector2 position;
@@ -83,6 +84,7 @@ namespace molnprojektet
                     PositionHelper(adjustedPosition);
             }
         }
+    
 
         //Sets position of all sprites
         private void PositionHelper(Vector2 v)

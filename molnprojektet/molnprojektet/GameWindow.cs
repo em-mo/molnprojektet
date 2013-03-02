@@ -87,29 +87,42 @@ namespace molnprojektet
             #endregion
         }
 
+        private double dropDelay = 100;
+        private DateTime dropTimer = new DateTime();
+        public void releaseRainDrops()
+        {
+            if (DateTime.Now > dropTimer.AddMilliseconds(dropDelay))
+            {
+                dropTimer = DateTime.Now;
+                Sprite drop = new Sprite();
+
+
+            }
+        }
+
         public void SwipeUp()
         {
             playerCloud.AddWindPuff((float)Math.PI / 2, Arm.Right);
             lock (playerCloud.locker)
-                playerCloud.Speed += new Vector2(0,-100);
+                playerCloud.Speed += new Vector2(0,200);
         }
         public void SwipeDown()
         {
             playerCloud.AddWindPuff((float)-Math.PI / 2, Arm.Left);
             lock (playerCloud.locker)
-                playerCloud.Speed += new Vector2(0, 100);
+                playerCloud.Speed += new Vector2(0, -200);
         }
         public void SwipeLeft()
         {
             playerCloud.AddWindPuff(0, Arm.Right);
             lock (playerCloud.locker)
-                playerCloud.Speed += new Vector2(-100, 0);
+                playerCloud.Speed += new Vector2(200, 0);
         }
         public void SwipeRight()
         {
             playerCloud.AddWindPuff((float)Math.PI, Arm.Left);
             lock (playerCloud.locker)
-                playerCloud.Speed += new Vector2(100, 0);
+                playerCloud.Speed += new Vector2(-200, 0);
         }
 
 
