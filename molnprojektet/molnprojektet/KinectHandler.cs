@@ -14,7 +14,7 @@ namespace molnprojektet
 
         private const float SWIPE_INITIALIZE_VALUE = 0F;
         private const float SWIPE_DELTA_QOTIENT = 1.7F;
-        private const float SWIPE_THRESHOLD = 0.17F;
+        private const float SWIPE_THRESHOLD = 0.25F;
         private const float EXPECTED_NOISE = 5;
         
         //Right hand DOWN
@@ -108,7 +108,6 @@ namespace molnprojektet
 
             if (currentSkeleton != null && currentSkeleton.TrackingState != SkeletonTrackingState.NotTracked)
             {
-
                 HandleArmAngles();
 
                 HandleSwipes();
@@ -182,25 +181,24 @@ namespace molnprojektet
 
         private void HandleSwipes()
         {
-
             if (CheckForRightHandSwipeUp(currentSkeleton.Joints[JointType.HandRight]))
-                game.SwipeUp();
+                game.SwipeUp(Arm.Right);
             if (CheckForRightHandSwipeDown(currentSkeleton.Joints[JointType.HandRight]))
-                game.SwipeDown();
+                game.SwipeDown(Arm.Right);
             if (CheckForRightHandSwipeToLeft(currentSkeleton.Joints[JointType.HandRight]))
-                game.SwipeLeft();
+                game.SwipeLeft(Arm.Right);
             if (CheckForRightHandSwipeToRight(currentSkeleton.Joints[JointType.HandRight]))
-                game.SwipeRight();
+                game.SwipeRight(Arm.Right);
 
 
             if (CheckForLeftHandSwipeUp(currentSkeleton.Joints[JointType.HandLeft]))
-                game.SwipeUp();
+                game.SwipeUp(Arm.Left);
             if (CheckForLeftHandSwipeDown(currentSkeleton.Joints[JointType.HandLeft]))
-                game.SwipeDown();
+                game.SwipeDown(Arm.Left);
             if (CheckForLeftHandSwipeToLeft(currentSkeleton.Joints[JointType.HandLeft]))
-                game.SwipeLeft();
+                game.SwipeLeft(Arm.Left);
             if (CheckForLeftHandSwipeToRight(currentSkeleton.Joints[JointType.HandLeft]))
-                game.SwipeRight();
+                game.SwipeRight(Arm.Left);
         }
 
         #region Righthand Swipe checks
