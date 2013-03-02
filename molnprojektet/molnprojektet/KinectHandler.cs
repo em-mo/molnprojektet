@@ -108,23 +108,23 @@ namespace molnprojektet
                 handleArmAngles();
 
                 if (CheckForRightHandSwipeUp(currentSkeleton.Joints[JointType.HandRight]))
-                    game.SwipeUp();
+                    game.SwipeUp(Arm.Right);
                 if (CheckForRightHandSwipeDown(currentSkeleton.Joints[JointType.HandRight]))
-                    game.SwipeDown();
+                    game.SwipeDown(Arm.Right);
                 if (CheckForRightHandSwipeToLeft(currentSkeleton.Joints[JointType.HandRight]))
-                    game.SwipeLeft();
+                    game.SwipeLeft(Arm.Right);
                 if (CheckForRightHandSwipeToRight(currentSkeleton.Joints[JointType.HandRight]))
-                    game.SwipeRight();
+                    game.SwipeRight(Arm.Right);
 
 
                 if (CheckForLeftHandSwipeUp(currentSkeleton.Joints[JointType.HandLeft]))
-                    game.SwipeUp();
+                    game.SwipeUp(Arm.Left);
                 if (CheckForLeftHandSwipeDown(currentSkeleton.Joints[JointType.HandLeft]))
-                    game.SwipeDown();
+                    game.SwipeDown(Arm.Left);
                 if (CheckForLeftHandSwipeToLeft(currentSkeleton.Joints[JointType.HandLeft]))
-                    game.SwipeLeft();
+                    game.SwipeLeft(Arm.Left);
                 if (CheckForLeftHandSwipeToRight(currentSkeleton.Joints[JointType.HandLeft]))
-                    game.SwipeRight();
+                    game.SwipeRight(Arm.Left);
             }
         }
 
