@@ -56,7 +56,7 @@ namespace molnprojektet
             if(newState.IsKeyDown(Keys.Down) && !keysDown[0])
             {
                 //cloud.Position += new Vector2(0,3);   
-                SwipeDown();
+                SwipeDown(Arm.Left);
                 keysDown[0] = true;
             }
             if (newState.IsKeyUp(Keys.Down))
@@ -64,7 +64,7 @@ namespace molnprojektet
             if (newState.IsKeyDown(Keys.Up) && !keysDown[1])
             {
                 //cloud.Position -= new Vector2(0, 3);
-                SwipeUp();
+                SwipeUp(Arm.Right);
                 keysDown[1] = true;
             }
             if (newState.IsKeyUp(Keys.Up))
@@ -72,7 +72,7 @@ namespace molnprojektet
             if (newState.IsKeyDown(Keys.Right) && !keysDown[2])
             {
                 //cloud.Position += new Vector2(3, 0);
-                SwipeRight();
+                SwipeRight(Arm.Right);
                 keysDown[2] = true;
             }
             if (newState.IsKeyUp(Keys.Right))
@@ -80,7 +80,7 @@ namespace molnprojektet
             if (newState.IsKeyDown(Keys.Left) && !keysDown[3])
             {
                 //cloud.Position -= new Vector2(3, 0);
-                SwipeLeft();
+                SwipeLeft(Arm.Left);
                 keysDown[3] = true;
             }
             if (newState.IsKeyUp(Keys.Left))
@@ -124,27 +124,27 @@ namespace molnprojektet
             }
         }
 
-        public void SwipeUp()
+        public void SwipeUp(Arm arm)
         {
-            playerCloud.AddWindPuff((float)Math.PI / 2, Arm.Right);
+            playerCloud.AddWindPuff((float)Math.PI / 2, arm);
             lock (playerCloud.locker)
                 playerCloud.Speed += new Vector2(0,200);
         }
-        public void SwipeDown()
+        public void SwipeDown(Arm arm)
         {
-            playerCloud.AddWindPuff((float)-Math.PI / 2, Arm.Left);
+            playerCloud.AddWindPuff((float)-Math.PI / 2, arm);
             lock (playerCloud.locker)
                 playerCloud.Speed += new Vector2(0, -200);
         }
-        public void SwipeLeft()
+        public void SwipeLeft(Arm arm)
         {
-            playerCloud.AddWindPuff(0, Arm.Right);
+            playerCloud.AddWindPuff(0, arm);
             lock (playerCloud.locker)
                 playerCloud.Speed += new Vector2(200, 0);
         }
-        public void SwipeRight()
+        public void SwipeRight(Arm arm)
         {
-            playerCloud.AddWindPuff((float)Math.PI, Arm.Left);
+            playerCloud.AddWindPuff((float)Math.PI, arm);
             lock (playerCloud.locker)
                 playerCloud.Speed += new Vector2(-200, 0);
         }

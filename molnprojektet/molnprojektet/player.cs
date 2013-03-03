@@ -18,7 +18,7 @@ namespace molnprojektet
         private Dictionary<CloudDirection, Texture2D> cloudTextures;
         private Sprite windPuff;
 
-        private const float acceleration = -150;
+        private const float ACCELERATION = -150;
         private const float MAX_SPEED = 500;
 
         private float rightHumerusOffsetX;
@@ -39,13 +39,13 @@ namespace molnprojektet
         private Queue<Vector2> shadePositions;
         private DateTime shadeTimer = DateTime.Now;
         // Amount of time between two shades
-        private const int ShadeAddDelay = 40;
+        private const int SHADE_ADD_DELAY = 40;
         // Minimum speed before shades appear
-        private const int ShadeSpeedThreshold = 2;
+        private const int SHADE_SPEED_THRESHOLD = 2;
         // Maximum number of shades
-        private const int MaxShades = 5;
+        private const int MAX_SHADES = 5;
         // Increment of shade transparencye
-        private const float ShadeTransparency = 1.2f;
+        private const float SHADE_TRANSPARENCY = 1.2f;
 
         public readonly object locker = new object();
 
@@ -211,13 +211,13 @@ namespace molnprojektet
             if (speed != Vector2.Zero)
             {
                 if (speed.X > 0)
-                    newSpeed.X = acceleration * (float)gameTime.ElapsedGameTime.TotalSeconds + speed.X;
+                    newSpeed.X = ACCELERATION * (float)gameTime.ElapsedGameTime.TotalSeconds + speed.X;
                 else if (speed.X < 0)
-                    newSpeed.X = (-acceleration) * (float)gameTime.ElapsedGameTime.TotalSeconds + speed.X;
+                    newSpeed.X = (-ACCELERATION) * (float)gameTime.ElapsedGameTime.TotalSeconds + speed.X;
                 if (speed.Y > 0)
-                    newSpeed.Y = acceleration * (float)gameTime.ElapsedGameTime.TotalSeconds + speed.Y;
+                    newSpeed.Y = ACCELERATION * (float)gameTime.ElapsedGameTime.TotalSeconds + speed.Y;
                 else if (speed.Y < 0)
-                    newSpeed.Y = (-acceleration) * (float)gameTime.ElapsedGameTime.TotalSeconds + speed.Y;
+                    newSpeed.Y = (-ACCELERATION) * (float)gameTime.ElapsedGameTime.TotalSeconds + speed.Y;
 
                 if (newSpeed.X < 0.15f && newSpeed.X > -0.15f)
                     newSpeed.X = 0;
@@ -343,20 +343,20 @@ namespace molnprojektet
         {
             if (shadeTimer < DateTime.Now) 
             {
-                shadeTimer = DateTime.Now.AddMilliseconds(ShadeAddDelay);
+                shadeTimer = DateTime.Now.AddMilliseconds(SHADE_ADD_DELAY);
 
-                if (speed.Length() > ShadeSpeedThreshold)
+                if (speed.Length() > SHADE_SPEED_THRESHOLD)
                     shadePositions.Enqueue(position);
                 else if (shadePositions.Count > 0)
                     shadePositions.Dequeue();
 
-                if (shadePositions.Count > MaxShades)
+                if (shadePositions.Count > MAX_SHADES)
                     shadePositions.Dequeue();
             }
 
             if (shadePositions.Count > 0)
             {
-                float alpha = ShadeTransparency;
+                float alpha = SHADE_TRANSPARENCY;
                 Vector2 startPosition = position;
 
                 lock (locker)
