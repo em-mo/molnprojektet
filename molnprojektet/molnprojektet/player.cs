@@ -17,6 +17,9 @@ namespace molnprojektet
         enum CloudDirection {None, Left, Right}
         private Dictionary<CloudDirection, Texture2D> cloudTextures;
         private Sprite windPuff;
+        private bool isSick = false;
+        private const float SICKPERIOD = 5000;
+        private float sickTime;
 
         private const float ACCELERATION = -150;
         private const float MAX_SPEED = 500;
@@ -49,6 +52,16 @@ namespace molnprojektet
         private const float SHADE_TRANSPARENCY = 1.2f;
 
         public readonly object locker = new object();
+
+        public bool IsSick
+        {
+            get { return isSick; }
+            set 
+            { 
+                isSick = value;
+                sickTime = SICKPERIOD;
+            }
+        }
 
         public Vector2 Position
         {
@@ -84,11 +97,15 @@ namespace molnprojektet
             }
         }
 
+        public BoundingRect GetBounds()
+        {
+            return spriteDict[PlayerSprites.Cloud].Bounds;
+        }
+
         public Vector2 GetSize()
         {
             return spriteDict[PlayerSprites.Cloud].Size; 
         }
-    
 
         //Sets position of all sprites
         private void PositionHelper(Vector2 v)
@@ -122,7 +139,6 @@ namespace molnprojektet
                 }
             }
         }
-
 
         public Player(Vector2 screenOffset)
         {
@@ -198,9 +214,19 @@ namespace molnprojektet
             {
                 UpdateSpeed(gameTime);
                 Position += speed * (float)gameTime.ElapsedGameTime.TotalSeconds;
+
+                if (isSick)
+                    UpdateSickTime(gameTime);
+
             }
         }
 
+        private void UpdateSickTime(GameTime gameTime)
+        {
+            sickTime -= gameTime.ElapsedGameTime.Milliseconds;
+            if (sickTime <= 0)
+                isSick = false;
+        }
 
         private static float DirectionSpriteThreshold = 4;
 

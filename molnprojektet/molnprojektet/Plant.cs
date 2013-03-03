@@ -24,6 +24,10 @@ namespace molnprojektet
             return plantSprite.Size;
         }
 
+        public int GetGrowthStage()
+        {
+            return Plant.growthSpriteList.IndexOf(this.plantSprite.Texture);
+        }
 
         public Plant()
         {
@@ -32,7 +36,15 @@ namespace molnprojektet
             plantSprite.Texture = Game1.contentManager.Load<Texture2D>(@"Images\growthStage1");
 
         }
-
+        
+        public void Reset()
+        {
+            raindropsCount = 0;
+            Texture2D newTexture = Game1.contentManager.Load<Texture2D>(@"Images\growthStage1");
+            Vector2 sizeDiff = new Vector2(plantSprite.Size.X - newTexture.Width, plantSprite.Size.Y - newTexture.Height);
+            plantSprite.Texture = newTexture;
+            plantSprite.Position += sizeDiff;
+        }
         
         public static void LoadContent()
         {

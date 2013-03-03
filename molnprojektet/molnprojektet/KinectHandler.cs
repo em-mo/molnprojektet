@@ -113,7 +113,7 @@ namespace molnprojektet
 
                 HandleSwipes();
 
-                if (CheckRegndans())
+                if (CheckRegndans() && !game.PlayerCloud.IsSick)
                 {
                     game.releaseRainDrops();
                     game.StartNotCarrie();

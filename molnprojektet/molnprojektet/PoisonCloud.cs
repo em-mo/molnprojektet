@@ -18,6 +18,10 @@ namespace molnprojektet
         private const int RANDOM_SPEED = 300;
         private const float SPEED_Y = 80;
 
+        public Sprite GetSprite()
+        {
+            return poisonCloudSprite;
+        }
 
         public PoisonCloud(Vector2 position)
         {
