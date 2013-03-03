@@ -49,19 +49,16 @@ namespace molnprojektet
             timer.Start();
 
             Plant plant = new Plant();
-            plant.Position = new Vector2(Game1.graphics.PreferredBackBufferWidth / 2 , Game1.graphics.PreferredBackBufferHeight - plant.GetSize().Y);
+            plant.Position = new Vector2(Game1.graphics.PreferredBackBufferWidth / 4, Game1.graphics.PreferredBackBufferHeight - plant.GetSize().Y);
             plantList.Add(plant);
 
             Plant plant2 = new Plant();
             plant2.Position = new Vector2(Game1.graphics.PreferredBackBufferWidth * 3 / 4, Game1.graphics.PreferredBackBufferHeight - plant2.GetSize().Y);
             plantList.Add(plant2);
 
-            Plant plant3 = new Plant();
-            plant3.Position = new Vector2(Game1.graphics.PreferredBackBufferWidth / 4, Game1.graphics.PreferredBackBufferHeight - plant3.GetSize().Y);
-            plantList.Add(plant3);
-
+            
             DeathFactory factory = new DeathFactory(this);
-            factory.Position = new Vector2(200, Game1.graphics.PreferredBackBufferHeight - factory.GetSize().Y);
+            factory.Position = new Vector2(Game1.graphics.PreferredBackBufferWidth / 2, Game1.graphics.PreferredBackBufferHeight - factory.GetSize().Y);
             deathFactoryList.Add(factory);
 
             graphicsHandler = new GraphicsHandler();
@@ -108,6 +105,8 @@ namespace molnprojektet
             UpdateFallingRaindrops(gameTime);
             UpdateFactories(gameTime);
             UpdatePoisonClouds(gameTime);
+            CheckForResetFlowers();
+            CheckForCloudCollision();
 
             #region Key States
             KeyboardState newState = Keyboard.GetState();
@@ -147,6 +146,35 @@ namespace molnprojektet
 
             oldState = newState;
             #endregion
+        }
+
+        private void CheckForCloudCollision()
+        {
+            foreach (PoisonCloud  cloud in poisonCloudList)
+            {
+                if (cloud.GetSprite().Bounds.Intersects(playerCloud.GetBounds()))
+                {
+                    playerCloud.IsSick = true;
+                }
+            }
+        }
+
+        private void CheckForResetFlowers()
+        {
+            bool reset = true;
+            foreach (Plant plant in plantList)
+            {
+                if (plant.GetGrowthStage() != 2)
+                {
+                    reset = false;
+                    break;
+                }
+            }
+            if(reset)
+                foreach (Plant plant in plantList)
+                {
+                    plant.Reset();
+                }
         }
 
         public void releaseRainDrops()
