@@ -436,10 +436,12 @@ namespace molnprojektet
         public void Draw(GraphicsHandler g)
         {
             lock (locker)
+            {
                 DrawWindPuff(g);
                 DrawShades(g);
-                foreach(Sprite sprite in spriteDict.Values)
+                foreach (Sprite sprite in spriteDict.Values)
                     g.DrawSprite(sprite);
+            }
         }
     }
 }

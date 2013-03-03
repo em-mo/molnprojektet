@@ -85,7 +85,7 @@ namespace molnprojektet
         {
             while (running)
             {
-                System.Threading.Thread.Sleep(10);
+                System.Threading.Thread.Sleep(1);
                 if (sensor != null)
                     ProcessSkeletonFrame();
             }
@@ -366,9 +366,10 @@ namespace molnprojektet
         private Direction armsMovementDirection = Direction.None;
         private Direction armsExpectedDirection = Direction.None;
         private Stopwatch armsEdgeStopwatch = new Stopwatch();
+        private Stopwatch armsMidStopwatch = new Stopwatch();
         private const float ARM_TO_HEAD_THRESHOLD = 0.4f;
         private const float HANDS_TOGETHER = 0.37f;
-        private const long MAX_EDGE_TIME = 3000; 
+        private const long MAX_TIME = 2000; 
         /// <summary>
         /// Checks for arms over head and movement of arms side to side, if yes then rain!
         /// </summary>
@@ -380,15 +381,15 @@ namespace molnprojektet
                 currentSkeleton.Joints[JointType.HandLeft].Position.Y > headPosition.Y &&
                 currentSkeleton.Joints[JointType.HandRight].Position.X - currentSkeleton.Joints[JointType.HandLeft].Position.X < HANDS_TOGETHER)
             {
-                armsToHeadPreviousDiff = armsToHeadDiff;
                 armsToHeadDiff = calculateArmsToHeadDifferens();
-                armsMovementDirection = calculateArmsMovement(armsToHeadDiff, armsToHeadPreviousDiff, armsMovementDirection);
-                System.Console.WriteLine(armsToHeadDiff);
                 if (inRegndans)
                 {
                     // Arms entering edge
                     if (Math.Abs(armsToHeadDiff) > ARM_TO_HEAD_THRESHOLD && armsEdgeStopwatch.IsRunning == false)
                     {
+                        armsMidStopwatch.Stop();
+                        armsMidStopwatch.Reset();
+
                         armsEdgeStopwatch.Start();
                     }
                     // Arms leaving edge
@@ -397,23 +398,24 @@ namespace molnprojektet
                         armsEdgeStopwatch.Stop();
                         armsEdgeStopwatch.Reset();
 
-                        armsExpectedDirection = armsMovementDirection;
+                        armsMidStopwatch.Start();
                     }
                     // Arms at edge
                     else if (armsEdgeStopwatch.IsRunning)
                     {
-                        if (armsEdgeStopwatch.ElapsedMilliseconds > MAX_EDGE_TIME)
+                        if (armsEdgeStopwatch.ElapsedMilliseconds > MAX_TIME)
                         {
                             StopRegndans();
                             regndansHasFailed = true;
                         }
                     }
                     // Arms in middle
-                    else if (armsEdgeStopwatch.IsRunning == false)
+                    else if (armsMidStopwatch.IsRunning == true)
                     {
-                        if (armsMovementDirection != armsExpectedDirection)
+                        if (armsMidStopwatch.ElapsedMilliseconds > MAX_TIME)
                         {
                             StopRegndans();
+                            regndansHasFailed = true;
                         }
                     }
                 }
@@ -461,7 +463,7 @@ namespace molnprojektet
             {
                 direction = Direction.Left;
             }
-            else if (currentPosition - previousPosition < 0 + EXPECTED_NOISE * 2)
+            else if (currentPosition - previousPosition > 0 + EXPECTED_NOISE * 2)
             {
                 direction = Direction.Right;
             }
@@ -471,8 +473,13 @@ namespace molnprojektet
                 armsMovementResetCounter++;
                 if (armsMovementResetCounter > ARMS_MOVEMENT_RESET_THRESHOLD)
                     armsMovementResetCounter = 0;
+                else if (direction == previousDirection)
+                {
+                    armsMovementResetCounter = 0;
+                    direction = previousDirection;
+                }
                 else
-                    direction = previousDirection;    
+                    direction = previousDirection;
             }
 
             return direction;
