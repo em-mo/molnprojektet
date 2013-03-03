@@ -127,6 +127,11 @@ namespace molnprojektet
                 playerCloud.Speed += new Vector2(-200, 0);
         }
 
+        public void AddPoisonCloud(Vector2 position)
+        {
+            //TODO
+        }
+
 
         public void Draw(GameTime gameTime)
         {

@@ -116,4 +116,9 @@ namespace molnprojektet
             spriteBatch.End();
         }
     }
+
+    static class Shared
+    {
+        public static readonly Random Random = new Random();
+    }
 }
