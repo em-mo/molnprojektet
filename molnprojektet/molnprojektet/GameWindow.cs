@@ -78,7 +78,7 @@ namespace molnprojektet
 
             backgroundSprites.Add(background);
 
-            notCarrie = Game1.contentManager.Load<SoundEffect>(@"Sounds/carrie");
+            notCarrie = Game1.contentManager.Load<SoundEffect>(@"Sounds/carrie2");
             notCarrieInstance = notCarrie.CreateInstance();
         }
 
