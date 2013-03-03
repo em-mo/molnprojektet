@@ -7,6 +7,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Kinect;
 using System.Diagnostics;
+using Microsoft.Xna.Framework.Audio;
 
 namespace molnprojektet
 {
@@ -22,6 +23,9 @@ namespace molnprojektet
         List<Sprite> backgroundSprites = new List<Sprite>();
         List<PoisonCloud> poisonCloudList = new List<PoisonCloud>();
         List<DeathFactory> deathFactoryList = new List<DeathFactory>();
+
+        SoundEffect notCarrie;
+        SoundEffectInstance notCarrieInstance;
 
         private int dropDelay = 300;
         const float dropSpeed = 200;
@@ -73,6 +77,27 @@ namespace molnprojektet
             playerCloud = new Player(background.Size);
 
             backgroundSprites.Add(background);
+
+            notCarrie = Game1.contentManager.Load<SoundEffect>(@"Sounds/carrie");
+            notCarrieInstance = notCarrie.CreateInstance();
+        }
+
+        public void StartNotCarrie()
+        {
+            if (notCarrieInstance.State == SoundState.Stopped)
+            {
+                notCarrieInstance.Volume = 0.75f;
+                notCarrieInstance.IsLooped = true;
+                notCarrieInstance.Play();
+            }
+            else if (notCarrieInstance.State == SoundState.Paused)
+                notCarrieInstance.Resume();
+        }
+
+        public void StopNotCarrie()
+        {
+            if (notCarrieInstance.State == SoundState.Playing)
+                notCarrieInstance.Pause();
         }
 
         private bool[] keysDown = new bool[4];

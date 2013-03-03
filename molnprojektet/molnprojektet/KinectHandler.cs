@@ -116,9 +116,10 @@ namespace molnprojektet
                 if (CheckRegndans())
                 {
                     game.releaseRainDrops();
+                    game.StartNotCarrie();
                 }
                 else
-                    System.Console.WriteLine("Icket");
+                    game.StopNotCarrie();
             }
         }
 
