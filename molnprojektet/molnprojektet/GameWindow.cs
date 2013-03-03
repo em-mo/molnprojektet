@@ -17,6 +17,7 @@ namespace molnprojektet
 
         List<Sprite> spriteList = new List<Sprite>();
         List<Sprite> backgroundSprites = new List<Sprite>();
+        List<Sprite> poisonCloudList = new List<Sprite>();
 
         private Player playerCloud;
 
@@ -35,6 +36,7 @@ namespace molnprojektet
             background.Initialize();
             background.Texture = Game1.contentManager.Load<Texture2D>(@"Images\Gradient");
             background.Size = new Vector2(Game1.graphics.PreferredBackBufferWidth, Game1.graphics.PreferredBackBufferHeight);
+            background.Layer = 0;
 
             playerCloud = new Player(background.Size);
 

@@ -68,7 +68,6 @@ namespace molnprojektet
                     adjustedPosition.X = ScreenOffset.X - spriteDict[PlayerSprites.Cloud].Size.X;
                     speed.X = 0;
                 }
-
                 if (position.Y < 0)
                 {
                     adjustedPosition.Y = 0;
@@ -79,7 +78,6 @@ namespace molnprojektet
                     adjustedPosition.Y = ScreenOffset.Y - spriteDict[PlayerSprites.Cloud].Size.Y;
                     speed.Y = 0;
                 }
-
                 if (adjustedPosition != position)
                     PositionHelper(adjustedPosition);
             }
@@ -158,14 +156,11 @@ namespace molnprojektet
             windPuff.Texture = Game1.contentManager.Load<Texture2D>(@"Images\wind");
             spriteDict[PlayerSprites.Cloud].Texture = cloudTextures[CloudDirection.None];
             spriteDict[PlayerSprites.LeftHumerus].Texture = Game1.contentManager.Load<Texture2D>(@"Images\Humerus_left");
-            spriteDict[PlayerSprites.LeftUlna].Texture = Game1.contentManager.Load<Texture2D>(@"Images\Ulna_left");
             spriteDict[PlayerSprites.LeftHand].Texture = Game1.contentManager.Load<Texture2D>(@"Images\Hand_left");
             spriteDict[PlayerSprites.RightHumerus].Texture = Game1.contentManager.Load<Texture2D>(@"Images\Humerus_right");
-            spriteDict[PlayerSprites.RightUlna].Texture = Game1.contentManager.Load<Texture2D>(@"Images\Ulna_right");
             spriteDict[PlayerSprites.RightHand].Texture = Game1.contentManager.Load<Texture2D>(@"Images\Hand_right");
-
-            spriteDict[PlayerSprites.LeftUlna].Layer = 0f;
-            spriteDict[PlayerSprites.RightUlna].Layer = 0f;
+            spriteDict[PlayerSprites.LeftUlna].Texture = Game1.contentManager.Load<Texture2D>(@"Images\Ulna_left");
+            spriteDict[PlayerSprites.RightUlna].Texture = Game1.contentManager.Load<Texture2D>(@"Images\Ulna_right");
 
             spriteDict[PlayerSprites.Cloud].Scale = Vector2.One * 0.6f;
 

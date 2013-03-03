@@ -9,10 +9,10 @@ namespace molnprojektet
     class Plant
     {
         private Sprite plantSprite;
-        static List<Texture2D> growthSpriteList;
+        static List<Texture2D> growthSpriteList = new List<Texture2D>();
         private int raindropsCount = 0;
 
-        static void InitializeGrowthList()
+        public static void LoadContent()
         {
             Texture2D stage1 = Game1.contentManager.Load<Texture2D>(@"Images\growthStage1");
             growthSpriteList.Add(stage1);
