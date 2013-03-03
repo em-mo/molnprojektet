@@ -15,7 +15,6 @@ namespace molnprojektet
         private const float SWIPE_INITIALIZE_VALUE = 0F;
         private const float SWIPE_DELTA_QOTIENT = 1.7F;
         private const float SWIPE_THRESHOLD = 0.25F;
-        private const float EXPECTED_NOISE = 5;
         
         //Right hand DOWN
         private float right_DownDeltaBuffer;
@@ -367,7 +366,7 @@ namespace molnprojektet
         private Direction armsExpectedDirection = Direction.None;
         private Stopwatch armsEdgeStopwatch = new Stopwatch();
         private const float ARM_TO_HEAD_THRESHOLD = 0.4f;
-        private const float HANDS_TOGETHER = 0.37f;
+        private const float HANDS_TOGETHER = 0.6f;
         private const long MAX_EDGE_TIME = 3000; 
         /// <summary>
         /// Checks for arms over head and movement of arms side to side, if yes then rain!
@@ -383,7 +382,6 @@ namespace molnprojektet
                 armsToHeadPreviousDiff = armsToHeadDiff;
                 armsToHeadDiff = calculateArmsToHeadDifferens();
                 armsMovementDirection = calculateArmsMovement(armsToHeadDiff, armsToHeadPreviousDiff, armsMovementDirection);
-                System.Console.WriteLine(armsToHeadDiff);
                 if (inRegndans)
                 {
                     // Arms entering edge
@@ -406,6 +404,8 @@ namespace molnprojektet
                         {
                             StopRegndans();
                             regndansHasFailed = true;
+                            System.Console.WriteLine("edge");
+                            
                         }
                     }
                     // Arms in middle
@@ -413,7 +413,10 @@ namespace molnprojektet
                     {
                         if (armsMovementDirection != armsExpectedDirection)
                         {
-                            StopRegndans();
+                            //StopRegndans();
+                            //regndansHasFailed = true;
+                            System.Console.WriteLine("direction");
+
                         }
                     }
                 }
@@ -427,6 +430,8 @@ namespace molnprojektet
             {
                 StopRegndans();
                 regndansHasFailed = false;
+                System.Console.WriteLine("upp med händerna");
+
             }
             return inRegndans;
         }
@@ -444,7 +449,8 @@ namespace molnprojektet
             inRegndans = true;
         }
 
-        private const int ARMS_MOVEMENT_RESET_THRESHOLD = 0;
+        private const float EXPECTED_NOISE = 0.015f;
+        private const int ARMS_MOVEMENT_RESET_THRESHOLD = 2;
         private int armsMovementResetCounter = 0;
         /// <summary>
         /// Calculates the current moving direction of the arms.
@@ -457,13 +463,14 @@ namespace molnprojektet
         private Direction calculateArmsMovement(float currentPosition, float previousPosition, Direction previousDirection)
         {
             Direction direction = Direction.None;
-            if (currentPosition - previousPosition < 0 + EXPECTED_NOISE * 2)
+            if (currentPosition - previousPosition < 0 - EXPECTED_NOISE)
             {
                 direction = Direction.Left;
             }
-            else if (currentPosition - previousPosition < 0 + EXPECTED_NOISE * 2)
+            else if (currentPosition - previousPosition > 0 + EXPECTED_NOISE)
             {
                 direction = Direction.Right;
+
             }
 
             if (direction != previousDirection)
@@ -471,6 +478,11 @@ namespace molnprojektet
                 armsMovementResetCounter++;
                 if (armsMovementResetCounter > ARMS_MOVEMENT_RESET_THRESHOLD)
                     armsMovementResetCounter = 0;
+                else if (direction == previousDirection)
+                {
+                    armsMovementResetCounter = 0;
+                    direction = previousDirection;
+                }
                 else
                     direction = previousDirection;    
             }

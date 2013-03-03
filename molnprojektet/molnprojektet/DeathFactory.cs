@@ -67,8 +67,6 @@ namespace molnprojektet
             cloudTimer += gameTime.ElapsedGameTime.Milliseconds;
             if (cloudTimer > nextCloudTime)
             {
-                System.Console.WriteLine(cloudTimer);
-
                 cloudTimer -= nextCloudTime;
                 nextCloudTime = GetNextCloudTime();
 

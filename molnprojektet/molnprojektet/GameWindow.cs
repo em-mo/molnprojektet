@@ -49,11 +49,11 @@ namespace molnprojektet
             timer.Start();
 
             Plant plant = new Plant();
-            plant.Position = new Vector2(Game1.graphics.PreferredBackBufferWidth / 4, Game1.graphics.PreferredBackBufferHeight - plant.GetSize().Y);
+            plant.Position = new Vector2(Game1.graphics.PreferredBackBufferWidth / 8, Game1.graphics.PreferredBackBufferHeight - plant.GetSize().Y);
             plantList.Add(plant);
 
             Plant plant2 = new Plant();
-            plant2.Position = new Vector2(Game1.graphics.PreferredBackBufferWidth * 3 / 4, Game1.graphics.PreferredBackBufferHeight - plant2.GetSize().Y);
+            plant2.Position = new Vector2(Game1.graphics.PreferredBackBufferWidth * 6 / 8, Game1.graphics.PreferredBackBufferHeight - plant2.GetSize().Y);
             plantList.Add(plant2);
 
             

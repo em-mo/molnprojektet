@@ -462,10 +462,23 @@ namespace molnprojektet
         public void Draw(GraphicsHandler g)
         {
             lock (locker)
+            {
                 DrawWindPuff(g);
                 DrawShades(g);
-                foreach(Sprite sprite in spriteDict.Values)
+                foreach (Sprite sprite in spriteDict.Values)
                     g.DrawSprite(sprite);
+                if (isSick)
+                    DrawSick(g);
+            }
+        }
+
+        public void DrawSick(GraphicsHandler g)
+        {
+            Color color = Color.ForestGreen;
+            color.A = 128;
+            spriteDict[PlayerSprites.Cloud].Color = color;
+            g.DrawSprite(spriteDict[PlayerSprites.Cloud]);
+            spriteDict[PlayerSprites.Cloud].Color = Color.White;
         }
     }
 }
