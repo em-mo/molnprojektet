@@ -479,6 +479,7 @@ namespace molnprojektet
             spriteDict[PlayerSprites.Cloud].Color = color;
             g.DrawSprite(spriteDict[PlayerSprites.Cloud]);
             spriteDict[PlayerSprites.Cloud].Color = Color.White;
+            }
         }
     }
 }
