@@ -15,8 +15,11 @@ namespace molnprojektet
         GraphicsHandler graphicsHandler;
         KeyboardState oldState;
 
+        List<Sprite> raindropsList = new List<Sprite>();
+        List<Plant> plantList = new List<Plant>();
         List<Sprite> spriteList = new List<Sprite>();
         List<Sprite> backgroundSprites = new List<Sprite>();
+        const float dropSpeed = 5;
 
         private Player playerCloud;
 
@@ -95,8 +98,29 @@ namespace molnprojektet
             {
                 dropTimer = DateTime.Now;
                 Sprite drop = new Sprite();
+                drop.Initialize();
+                drop.Texture = Game1.contentManager.Load<Texture2D>(@"Images\Drop");
+                Random rand  = new Random();
+                float xValue = rand.Next((int)playerCloud.Position.X , (int)playerCloud.Position.X + (int)playerCloud.GetSize().X);
+                float yValue = playerCloud.Position.Y + playerCloud.GetSize().Y;
+                drop.Position = new Vector2(xValue, yValue);
+                raindropsList.Add(drop);
+            }
+        }
 
-
+        public void UpdateFallingRaindrops()
+        {
+            foreach (Plant plant in plantList)
+            {
+                for (int i = raindropsList.Count - 1; i > 0; i-- )
+                {
+                    Sprite drop = raindropsList.ElementAt(i);
+                    drop.Position += new Vector2(dropSpeed, 0);
+                    if (plant.Update(drop))
+                        raindropsList.Remove(drop);
+                    else if (drop.Position.Y + drop.Size.Y >= background.Size.Y)
+                        raindropsList.Remove(drop);
+                }
             }
         }
 

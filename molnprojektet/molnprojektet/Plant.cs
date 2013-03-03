@@ -24,17 +24,18 @@ namespace molnprojektet
             growthSpriteList.Add(stage4);
         }
 
-        public void Update(List<Sprite> rainDrops)
+        public bool Update(Sprite raindrop)
         {
-            if(rainDrops != null && raindropsCount != 16)
+            if(raindropsCount != 16)
             {
-                foreach (Sprite drop in rainDrops)
-                    if (CheckForCollision(drop))
-                    {
-                        raindropsCount++;
-                        CheckForEvolve();
-                    }
+                if (CheckForCollision(raindrop))
+                {
+                    raindropsCount++;
+                    CheckForEvolve();
+                    return true;
+                }
             }
+            return false;
 
         }
 
@@ -47,7 +48,7 @@ namespace molnprojektet
 
 
 
-        public void CheckForEvolve()
+        private void CheckForEvolve()
         {
             if (raindropsCount % 4 == 0)
             {

@@ -84,6 +84,11 @@ namespace molnprojektet
                     PositionHelper(adjustedPosition);
             }
         }
+
+        public Vector2 GetSize()
+        {
+            return spriteDict[PlayerSprites.Cloud].Size; 
+        }
     
 
         //Sets position of all sprites
