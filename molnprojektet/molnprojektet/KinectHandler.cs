@@ -78,6 +78,7 @@ namespace molnprojektet
                     this.sensor = null;
                 }
             }
+            regnStopwatch.Start();
         }
 
         public void run()
@@ -112,12 +113,18 @@ namespace molnprojektet
 
                 HandleSwipes();
 
-                if (CheckRegndans())
-                    System.Console.WriteLine("Regn!");
+                if (CheckRegndans() && regnStopwatch.ElapsedMilliseconds > 500)
+                {
+                    regnStopwatch.Restart();
+                    game.PlayerCloud.AddWindPuff((float)-Math.PI / 2, Arm.Left);
+                    game.PlayerCloud.AddWindPuff((float)-Math.PI / 2, Arm.Right);
+                }
                 else
                     System.Console.WriteLine("Icket");
             }
         }
+
+        Stopwatch regnStopwatch = new Stopwatch();
 
         private void TrackClosestSkeleton(Skeleton[] skeletons)
         {
