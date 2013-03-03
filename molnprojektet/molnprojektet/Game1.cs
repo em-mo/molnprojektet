@@ -71,9 +71,6 @@ namespace molnprojektet
         /// </summary>
         protected override void LoadContent()
         {
-
-
-
             Plant.LoadContent();
             DeathFactory.LoadContent();
         }

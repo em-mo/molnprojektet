@@ -366,7 +366,7 @@ namespace molnprojektet
         private Direction armsExpectedDirection = Direction.None;
         private Stopwatch armsEdgeStopwatch = new Stopwatch();
         private const float ARM_TO_HEAD_THRESHOLD = 0.4f;
-        private const float HANDS_TOGETHER = 0.33f;
+        private const float HANDS_TOGETHER = 0.37f;
         private const long MAX_EDGE_TIME = 3000; 
         /// <summary>
         /// Checks for arms over head and movement of arms side to side, if yes then rain!

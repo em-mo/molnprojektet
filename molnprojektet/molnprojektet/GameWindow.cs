@@ -23,7 +23,11 @@ namespace molnprojektet
 
         private int dropDelay = 300;
         const float dropSpeed = 200;
+        private const int moveSpeed = 135;
+
         private Stopwatch timer = new Stopwatch();
+        Random rand = new Random();
+
         public readonly object dropLock = new object();
 
         List<Sprite> poisonCloudList = new List<Sprite>();
@@ -72,7 +76,6 @@ namespace molnprojektet
 
         public void Update(GameTime gameTime)
         {
-            releaseRainDrops();
             playerCloud.Update(gameTime);
             UpdateFallingRaindrops(gameTime);
 
@@ -118,14 +121,12 @@ namespace molnprojektet
 
         public void releaseRainDrops()
         {
-
             if (timer.ElapsedMilliseconds > dropDelay)
             {
                 Sprite drop = new Sprite();
                 drop.Initialize();
                 drop.Texture = Game1.contentManager.Load<Texture2D>(@"Images\Drop");
-                Random rand  = new Random();
-                float xValue = rand.Next((int)playerCloud.Position.X , (int)playerCloud.Position.X + (int)playerCloud.GetSize().X);
+                float xValue = rand.Next((int)(playerCloud.Position.X +  0.2*playerCloud.GetSize().X) , (int)(playerCloud.Position.X + (playerCloud.GetSize().X) * 0.8));
                 float yValue = playerCloud.Position.Y + playerCloud.GetSize().Y;
                 drop.Position = new Vector2(xValue, yValue);
 
@@ -140,17 +141,21 @@ namespace molnprojektet
         {
             for (int i = raindropsList.Count - 1; i >= 0; i--)
             {
-                Sprite drop = raindropsList.ElementAt(i);
-                drop.Position += new Vector2(0, dropSpeed * gameTime.ElapsedGameTime.Milliseconds/1000);
+                lock (dropLock)
+                {
+                    Sprite drop = raindropsList.ElementAt(i);
 
-                foreach (Plant plant in plantList)
-                {   
-                    if (plant.CheckCollisionWithRaindrops(drop))
-                        raindropsList.Remove(drop);
+                    drop.Position += new Vector2(0, dropSpeed * gameTime.ElapsedGameTime.Milliseconds / 1000);
+
+                    foreach (Plant plant in plantList)
+                    {
+                        if (plant.CheckCollisionWithRaindrops(drop))    
+                            raindropsList.Remove(drop);
+                    }
+
+                    if (drop.Position.Y + drop.Size.Y >= background.Size.Y)
+                            raindropsList.Remove(drop);
                 }
-                
-                if(drop.Position.Y + drop.Size.Y >= background.Size.Y)
-                    raindropsList.Remove(drop);
             }
         }
 
@@ -158,19 +163,19 @@ namespace molnprojektet
         {
             playerCloud.AddWindPuff((float)Math.PI / 2, arm);
             lock (playerCloud.locker)
-                playerCloud.Speed += new Vector2(0,200);
+                playerCloud.Speed += new Vector2(0,120);
         }
         public void SwipeDown(Arm arm)
         {
             playerCloud.AddWindPuff((float)-Math.PI / 2, arm);
             lock (playerCloud.locker)
-                playerCloud.Speed += new Vector2(0, -200);
+                playerCloud.Speed += new Vector2(0, -120);
         }
         public void SwipeLeft(Arm arm)
         {
             playerCloud.AddWindPuff(0, arm);
             lock (playerCloud.locker)
-                playerCloud.Speed += new Vector2(200, 0);
+                playerCloud.Speed += new Vector2(120, 0);
         }
         public void SwipeRight(Arm arm)
         {

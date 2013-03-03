@@ -171,23 +171,23 @@ namespace molnprojektet
             spriteDict[PlayerSprites.LeftHumerus].Origin = new Vector2(spriteDict[PlayerSprites.LeftHumerus].Size.X, spriteDict[PlayerSprites.LeftHumerus].Size.Y / 2);
             spriteDict[PlayerSprites.LeftUlna].Origin = new Vector2(spriteDict[PlayerSprites.LeftUlna].Size.X, spriteDict[PlayerSprites.LeftUlna].Size.Y / 2);
             spriteDict[PlayerSprites.LeftHand].Origin = new Vector2(spriteDict[PlayerSprites.LeftHand].Size.X, spriteDict[PlayerSprites.LeftHand].Size.Y * 5 / 7);
-
+            /*
             //Scale Left
             spriteDict[PlayerSprites.LeftHumerus].Scale = new Vector2(armScale);
             spriteDict[PlayerSprites.LeftUlna].Scale = new Vector2(armScale);
             spriteDict[PlayerSprites.LeftHand].Scale = new Vector2(armScale);
-
+            */
 
             //Origin to left mid
             spriteDict[PlayerSprites.RightHumerus].Origin = new Vector2(0, spriteDict[PlayerSprites.RightHumerus].Size.Y / 2);
             spriteDict[PlayerSprites.RightUlna].Origin = new Vector2(0, spriteDict[PlayerSprites.RightUlna].Size.Y / 2);
             spriteDict[PlayerSprites.RightHand].Origin = new Vector2(0, spriteDict[PlayerSprites.RightHand].Size.Y * 5 / 7);
-
+            /*
             //Scale Right
             spriteDict[PlayerSprites.RightHumerus].Scale = new Vector2(armScale);
             spriteDict[PlayerSprites.RightUlna].Scale = new Vector2(armScale);
             spriteDict[PlayerSprites.RightHand].Scale = new Vector2(armScale);
-
+            */
             //Origin center
             windPuff.Origin = new Vector2(windPuff.Size.X / 2, windPuff.Size.Y / 2);
         }

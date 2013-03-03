@@ -54,11 +54,11 @@ namespace molnprojektet
 
         public Vector2 Size
         {
-            get { return size; }
+            get { return size * scale; }
             set
             {
-                size = value * scale;
-                bounds.Max = bounds.Min + size;
+                size = value; //* scale;
+                bounds.Max = bounds.Min + size*scale;
             }
         }
 
@@ -97,8 +97,7 @@ namespace molnprojektet
             { 
                 scale = value;
                 Vector2 size = new Vector2(bounds.Width, bounds.Height);
-                size *= scale;
-                bounds.Max = bounds.Min + size;
+                bounds.Max = bounds.Min + size*scale;
             }
         }
 
