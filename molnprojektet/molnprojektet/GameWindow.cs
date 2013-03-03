@@ -20,10 +20,14 @@ namespace molnprojektet
         List<Plant> plantList = new List<Plant>();
         List<Sprite> spriteList = new List<Sprite>();
         List<Sprite> backgroundSprites = new List<Sprite>();
+
         private int dropDelay = 300;
         const float dropSpeed = 200;
         private Stopwatch timer = new Stopwatch();
         public readonly object dropLock = new object();
+
+        List<Sprite> poisonCloudList = new List<Sprite>();
+
 
         private Player playerCloud;
 
@@ -57,6 +61,7 @@ namespace molnprojektet
             background.Initialize();
             background.Texture = Game1.contentManager.Load<Texture2D>(@"Images\Gradient");
             background.Size = new Vector2(Game1.graphics.PreferredBackBufferWidth, Game1.graphics.PreferredBackBufferHeight);
+            background.Layer = 0;
 
             playerCloud = new Player(background.Size);
 
@@ -172,6 +177,11 @@ namespace molnprojektet
             playerCloud.AddWindPuff((float)Math.PI, arm);
             lock (playerCloud.locker)
                 playerCloud.Speed += new Vector2(-200, 0);
+        }
+
+        public void AddPoisonCloud(Vector2 position)
+        {
+            //TODO
         }
 
 

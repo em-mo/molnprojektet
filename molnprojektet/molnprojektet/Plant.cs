@@ -10,7 +10,7 @@ namespace molnprojektet
     class Plant
     {
         private Sprite plantSprite;
-        static List<Texture2D> growthSpriteList;
+        static List<Texture2D> growthSpriteList = new List<Texture2D>();
         private int raindropsCount = 0;
 
         public Vector2 Position
@@ -27,16 +27,14 @@ namespace molnprojektet
 
         public Plant()
         {
-            if (growthSpriteList == null)
-                InitializeGrowthList();
-
             plantSprite = new Sprite();
             plantSprite.Initialize();
             plantSprite.Texture = Game1.contentManager.Load<Texture2D>(@"Images\growthStage1");
 
         }
 
-        static void InitializeGrowthList()
+        
+        public static void LoadContent()
         {
             growthSpriteList = new List<Texture2D>();
             Texture2D stage2 = Game1.contentManager.Load<Texture2D>(@"Images\growthStage2");

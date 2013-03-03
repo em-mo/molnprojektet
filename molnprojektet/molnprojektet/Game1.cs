@@ -50,15 +50,6 @@ namespace molnprojektet
         /// </summary>
         protected override void Initialize()
         {
-            base.Initialize();
-        }
-
-        /// <summary>
-        /// LoadContent will be called once per game and is the place to load
-        /// all of your content.
-        /// </summary>
-        protected override void LoadContent()
-        {
             // Create a new SpriteBatch, which can be used to draw textures.
             spriteBatch = new SpriteBatch(GraphicsDevice);
 
@@ -70,6 +61,21 @@ namespace molnprojektet
             kinectThread = new Thread(() => kinectHandler.run());
             kinectThread.IsBackground = true;
             kinectThread.Start();
+
+            base.Initialize();
+        }
+
+        /// <summary>
+        /// LoadContent will be called once per game and is the place to load
+        /// all of your content.
+        /// </summary>
+        protected override void LoadContent()
+        {
+
+
+
+            Plant.LoadContent();
+            DeathFactory.LoadContent();
         }
 
         /// <summary>
@@ -109,5 +115,10 @@ namespace molnprojektet
             base.Draw(gameTime);
             spriteBatch.End();
         }
+    }
+
+    static class Shared
+    {
+        public static readonly Random Random = new Random();
     }
 }
