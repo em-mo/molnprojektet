@@ -51,6 +51,21 @@ namespace molnprojektet
         protected override void Initialize()
         {
             // Create a new SpriteBatch, which can be used to draw textures.
+
+            base.Initialize();
+        }
+
+        /// <summary>
+        /// LoadContent will be called once per game and is the place to load
+        /// all of your content.
+        /// </summary>
+        protected override void LoadContent()
+        {
+            Plant.LoadContent();
+            DeathFactory.LoadContent();
+            PoisonCloud.LoadContent();
+
+
             spriteBatch = new SpriteBatch(GraphicsDevice);
 
             GameWindow gameWindow = new GameWindow();
@@ -62,20 +77,6 @@ namespace molnprojektet
             kinectThread.IsBackground = true;
             kinectThread.Start();
 
-            base.Initialize();
-        }
-
-        /// <summary>
-        /// LoadContent will be called once per game and is the place to load
-        /// all of your content.
-        /// </summary>
-        protected override void LoadContent()
-        {
-
-
-
-            Plant.LoadContent();
-            DeathFactory.LoadContent();
         }
 
         /// <summary>

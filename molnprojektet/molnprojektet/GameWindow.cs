@@ -20,14 +20,13 @@ namespace molnprojektet
         List<Plant> plantList = new List<Plant>();
         List<Sprite> spriteList = new List<Sprite>();
         List<Sprite> backgroundSprites = new List<Sprite>();
+        List<PoisonCloud> poisonCloudList = new List<PoisonCloud>();
+        List<DeathFactory> deathFactoryList = new List<DeathFactory>();
 
         private int dropDelay = 300;
         const float dropSpeed = 200;
         private Stopwatch timer = new Stopwatch();
         public readonly object dropLock = new object();
-
-        List<Sprite> poisonCloudList = new List<Sprite>();
-
 
         private Player playerCloud;
 
@@ -53,6 +52,10 @@ namespace molnprojektet
             plant3.Position = new Vector2(Game1.graphics.PreferredBackBufferWidth / 4, Game1.graphics.PreferredBackBufferHeight - plant3.GetSize().Y);
             plantList.Add(plant3);
 
+            DeathFactory factory = new DeathFactory(this);
+            factory.Position = new Vector2(200, Game1.graphics.PreferredBackBufferHeight - factory.GetSize().Y);
+            deathFactoryList.Add(factory);
+
             graphicsHandler = new GraphicsHandler();
             graphicsHandler.Initialize(batch);
             oldState = new KeyboardState();
@@ -75,6 +78,8 @@ namespace molnprojektet
             releaseRainDrops();
             playerCloud.Update(gameTime);
             UpdateFallingRaindrops(gameTime);
+            UpdateFactories(gameTime);
+            UpdatePoisonClouds(gameTime);
 
             #region Key States
             KeyboardState newState = Keyboard.GetState();
@@ -141,16 +146,32 @@ namespace molnprojektet
             for (int i = raindropsList.Count - 1; i >= 0; i--)
             {
                 Sprite drop = raindropsList.ElementAt(i);
-                drop.Position += new Vector2(0, dropSpeed * gameTime.ElapsedGameTime.Milliseconds/1000);
+                drop.Position += new Vector2(0, dropSpeed * gameTime.ElapsedGameTime.Milliseconds / 1000);
 
                 foreach (Plant plant in plantList)
-                {   
+                {
                     if (plant.CheckCollisionWithRaindrops(drop))
                         raindropsList.Remove(drop);
                 }
-                
-                if(drop.Position.Y + drop.Size.Y >= background.Size.Y)
+
+                if (drop.Position.Y + drop.Size.Y >= background.Size.Y)
                     raindropsList.Remove(drop);
+            }
+        }
+
+        private void UpdateFactories(GameTime gameTime)
+        {
+            foreach (DeathFactory factory in deathFactoryList)
+            {
+                factory.Update(gameTime);
+            }
+        }
+
+        private void UpdatePoisonClouds(GameTime gameTime)
+        {
+            foreach (PoisonCloud cloud in poisonCloudList)
+            {
+                cloud.Update(gameTime);
             }
         }
 
@@ -181,7 +202,7 @@ namespace molnprojektet
 
         public void AddPoisonCloud(Vector2 position)
         {
-            //TODO
+            poisonCloudList.Add(new PoisonCloud(position));
         }
 
 
@@ -192,9 +213,20 @@ namespace molnprojektet
             {
                 plant.Draw(graphicsHandler);
             }
+            
             graphicsHandler.DrawSprites(raindropsList);
             graphicsHandler.DrawSprites(spriteList);
             playerCloud.Draw(graphicsHandler);
+
+            foreach (PoisonCloud cloud in poisonCloudList)
+            {
+                cloud.Draw(graphicsHandler);
+            }
+
+            foreach (DeathFactory factory in deathFactoryList)
+            {
+                factory.Draw(graphicsHandler);
+            }
         }
     }
 }
