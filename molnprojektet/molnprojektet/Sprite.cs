@@ -22,6 +22,7 @@ namespace molnprojektet
         private Vector2 size;
         private bool isVisable;
         private SpriteEffects effects;
+        private BoundingRect bounds;
         
         /* Animation properties */
         private List<Rectangle> frames;
@@ -42,7 +43,12 @@ namespace molnprojektet
             set
             {
                 if (this.position != value)
+                {
                     position = value;
+                    Vector2 diff = value - bounds.Min;
+                    bounds.Min = value;
+                    bounds.Max += diff;
+                }
             }
         }
 
@@ -51,17 +57,19 @@ namespace molnprojektet
             get { return size; }
             set
             {
-                    size = value * scale;
+                size = value * scale;
+                bounds.Max = bounds.Min + size;
             }
         }
 
         public Texture2D Texture
         {
             get { return texture; }
-            set { 
-                    texture = value;
-                    Size = new Vector2(texture.Width, texture.Height);
-                }
+            set 
+            { 
+                texture = value;
+                Size = new Vector2(texture.Width, texture.Height);
+            }
         }
 
         public Color Color 
@@ -88,8 +96,16 @@ namespace molnprojektet
             set 
             { 
                 scale = value;
+                Vector2 size = new Vector2(bounds.Width, bounds.Height);
                 size *= scale;
+                bounds.Max = bounds.Min + size;
             }
+        }
+
+        public BoundingRect Bounds
+        {
+            get { return bounds; }
+            set { bounds = value; }
         }
         
         public SpriteEffects Effects
@@ -193,6 +209,7 @@ namespace molnprojektet
             this.position = Vector2.Zero;
             this.isVisable = true;
             this.color = Color.White;
+            this.bounds = new BoundingRect();
             this.rotation = 0f;
             this.scale = Vector2.One;
             this.effects = SpriteEffects.None;

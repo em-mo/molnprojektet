@@ -20,6 +20,7 @@ namespace molnprojektet
 
         private const float ACCELERATION = -150;
         private const float MAX_SPEED = 500;
+        private const float armScale = 0.75f;
 
         private float rightHumerusOffsetX;
         private float rightHumerusOffsetY;
@@ -130,16 +131,13 @@ namespace molnprojektet
             spriteDict = new Dictionary<PlayerSprites, Sprite>();
             this.ScreenOffset = screenOffset;
             InitSprites();
-            Position = new Vector2(400, 300);
+            Position = new Vector2(600, 100);
             InitArms();
 
             shadePositions = new Queue<Vector2>();
 
             SetLeftArmRotation((float)Math.PI / 2, (float)Math.PI / 2);
             SetRightArmRotation(-(float)Math.PI / 2, -(float)Math.PI / 2);
-            Position = new Vector2(200, 300);
-            Position = new Vector2(100, 100);
-            Position = new Vector2(600, 400);
         }
 
         private void InitSprites()
@@ -179,15 +177,24 @@ namespace molnprojektet
             spriteDict[PlayerSprites.LeftUlna].Origin = new Vector2(spriteDict[PlayerSprites.LeftUlna].Size.X, spriteDict[PlayerSprites.LeftUlna].Size.Y / 2);
             spriteDict[PlayerSprites.LeftHand].Origin = new Vector2(spriteDict[PlayerSprites.LeftHand].Size.X, spriteDict[PlayerSprites.LeftHand].Size.Y * 5 / 7);
 
+            //Scale Left
+            spriteDict[PlayerSprites.LeftHumerus].Scale = new Vector2(armScale);
+            spriteDict[PlayerSprites.LeftUlna].Scale = new Vector2(armScale);
+            spriteDict[PlayerSprites.LeftHand].Scale = new Vector2(armScale);
+
+
             //Origin to left mid
             spriteDict[PlayerSprites.RightHumerus].Origin = new Vector2(0, spriteDict[PlayerSprites.RightHumerus].Size.Y / 2);
             spriteDict[PlayerSprites.RightUlna].Origin = new Vector2(0, spriteDict[PlayerSprites.RightUlna].Size.Y / 2);
             spriteDict[PlayerSprites.RightHand].Origin = new Vector2(0, spriteDict[PlayerSprites.RightHand].Size.Y * 5 / 7);
 
+            //Scale Right
+            spriteDict[PlayerSprites.RightHumerus].Scale = new Vector2(armScale);
+            spriteDict[PlayerSprites.RightUlna].Scale = new Vector2(armScale);
+            spriteDict[PlayerSprites.RightHand].Scale = new Vector2(armScale);
+
             //Origin center
             windPuff.Origin = new Vector2(windPuff.Size.X / 2, windPuff.Size.Y / 2);
-
-
         }
 
         public void Update(GameTime gameTime)

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework;
 
 namespace molnprojektet
 {
@@ -12,10 +13,32 @@ namespace molnprojektet
         static List<Texture2D> growthSpriteList;
         private int raindropsCount = 0;
 
+        public Vector2 Position
+        {
+            get { return plantSprite.Position; }
+            set { plantSprite.Position = value;}
+        }
+
+        public Vector2 GetSize()
+        {
+            return plantSprite.Size;
+        }
+
+
+        public Plant()
+        {
+            if (growthSpriteList == null)
+                InitializeGrowthList();
+
+            plantSprite = new Sprite();
+            plantSprite.Initialize();
+            plantSprite.Texture = Game1.contentManager.Load<Texture2D>(@"Images\growthStage1");
+
+        }
+
         static void InitializeGrowthList()
         {
-            Texture2D stage1 = Game1.contentManager.Load<Texture2D>(@"Images\growthStage1");
-            growthSpriteList.Add(stage1);
+            growthSpriteList = new List<Texture2D>();
             Texture2D stage2 = Game1.contentManager.Load<Texture2D>(@"Images\growthStage2");
             growthSpriteList.Add(stage2);
             Texture2D stage3 = Game1.contentManager.Load<Texture2D>(@"Images\growthStage3");
@@ -24,9 +47,9 @@ namespace molnprojektet
             growthSpriteList.Add(stage4);
         }
 
-        public bool Update(Sprite raindrop)
+        public bool CheckCollisionWithRaindrops(Sprite raindrop)
         {
-            if(raindropsCount != 16)
+            if(raindropsCount != 12)
             {
                 if (CheckForCollision(raindrop))
                 {
@@ -36,24 +59,29 @@ namespace molnprojektet
                 }
             }
             return false;
-
         }
 
         private bool CheckForCollision(Sprite rainDrop)
         {
-            if (plantSprite.Texture.Bounds.Contains(rainDrop.Texture.Bounds))
+            if (plantSprite.Bounds.Contains(rainDrop.Bounds))
                 return true;
             return false;
         }
-
-
 
         private void CheckForEvolve()
         {
             if (raindropsCount % 4 == 0)
             {
-                plantSprite.Texture = growthSpriteList[raindropsCount / 4];
+                Texture2D newTexture = Plant.growthSpriteList[raindropsCount / 4 - 1];
+                Vector2 sizeDiff = new Vector2(plantSprite.Size.X - newTexture.Width, plantSprite.Size.Y - newTexture.Height);
+                plantSprite.Texture = newTexture;
+                plantSprite.Position += sizeDiff;
             }
+        }
+
+        public void Draw(GraphicsHandler graphicsHandler)
+        {
+            graphicsHandler.DrawSprite(plantSprite);
         }
 
     }

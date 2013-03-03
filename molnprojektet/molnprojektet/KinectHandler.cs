@@ -113,11 +113,9 @@ namespace molnprojektet
 
                 HandleSwipes();
 
-                if (CheckRegndans() && regnStopwatch.ElapsedMilliseconds > 500)
+                if (CheckRegndans())
                 {
-                    regnStopwatch.Restart();
-                    game.PlayerCloud.AddWindPuff((float)-Math.PI / 2, Arm.Left);
-                    game.PlayerCloud.AddWindPuff((float)-Math.PI / 2, Arm.Right);
+                    game.releaseRainDrops();
                 }
                 else
                     System.Console.WriteLine("Icket");

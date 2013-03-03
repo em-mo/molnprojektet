@@ -6,6 +6,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Kinect;
+using System.Diagnostics;
 
 namespace molnprojektet
 {
@@ -19,7 +20,10 @@ namespace molnprojektet
         List<Plant> plantList = new List<Plant>();
         List<Sprite> spriteList = new List<Sprite>();
         List<Sprite> backgroundSprites = new List<Sprite>();
-        const float dropSpeed = 5;
+        private int dropDelay = 300;
+        const float dropSpeed = 200;
+        private Stopwatch timer = new Stopwatch();
+        public readonly object dropLock = new object();
 
         private Player playerCloud;
 
@@ -30,6 +34,21 @@ namespace molnprojektet
 
         public void Initialize(SpriteBatch batch)
         {
+
+            timer.Start();
+
+            Plant plant = new Plant();
+            plant.Position = new Vector2(Game1.graphics.PreferredBackBufferWidth / 2 , Game1.graphics.PreferredBackBufferHeight - plant.GetSize().Y);
+            plantList.Add(plant);
+
+            Plant plant2 = new Plant();
+            plant2.Position = new Vector2(Game1.graphics.PreferredBackBufferWidth * 3 / 4, Game1.graphics.PreferredBackBufferHeight - plant2.GetSize().Y);
+            plantList.Add(plant2);
+
+            Plant plant3 = new Plant();
+            plant3.Position = new Vector2(Game1.graphics.PreferredBackBufferWidth / 4, Game1.graphics.PreferredBackBufferHeight - plant3.GetSize().Y);
+            plantList.Add(plant3);
+
             graphicsHandler = new GraphicsHandler();
             graphicsHandler.Initialize(batch);
             oldState = new KeyboardState();
@@ -48,7 +67,9 @@ namespace molnprojektet
 
         public void Update(GameTime gameTime)
         {
+            releaseRainDrops();
             playerCloud.Update(gameTime);
+            UpdateFallingRaindrops(gameTime);
 
             #region Key States
             KeyboardState newState = Keyboard.GetState();
@@ -90,13 +111,11 @@ namespace molnprojektet
             #endregion
         }
 
-        private double dropDelay = 100;
-        private DateTime dropTimer = new DateTime();
         public void releaseRainDrops()
         {
-            if (DateTime.Now > dropTimer.AddMilliseconds(dropDelay))
+
+            if (timer.ElapsedMilliseconds > dropDelay)
             {
-                dropTimer = DateTime.Now;
                 Sprite drop = new Sprite();
                 drop.Initialize();
                 drop.Texture = Game1.contentManager.Load<Texture2D>(@"Images\Drop");
@@ -104,23 +123,29 @@ namespace molnprojektet
                 float xValue = rand.Next((int)playerCloud.Position.X , (int)playerCloud.Position.X + (int)playerCloud.GetSize().X);
                 float yValue = playerCloud.Position.Y + playerCloud.GetSize().Y;
                 drop.Position = new Vector2(xValue, yValue);
-                raindropsList.Add(drop);
+
+                lock(dropLock)
+                    raindropsList.Add(drop);
+
+                timer.Restart();
             }
         }
 
-        public void UpdateFallingRaindrops()
+        public void UpdateFallingRaindrops(GameTime gameTime)
         {
-            foreach (Plant plant in plantList)
+            for (int i = raindropsList.Count - 1; i >= 0; i--)
             {
-                for (int i = raindropsList.Count - 1; i > 0; i-- )
-                {
-                    Sprite drop = raindropsList.ElementAt(i);
-                    drop.Position += new Vector2(dropSpeed, 0);
-                    if (plant.Update(drop))
-                        raindropsList.Remove(drop);
-                    else if (drop.Position.Y + drop.Size.Y >= background.Size.Y)
+                Sprite drop = raindropsList.ElementAt(i);
+                drop.Position += new Vector2(0, dropSpeed * gameTime.ElapsedGameTime.Milliseconds/1000);
+
+                foreach (Plant plant in plantList)
+                {   
+                    if (plant.CheckCollisionWithRaindrops(drop))
                         raindropsList.Remove(drop);
                 }
+                
+                if(drop.Position.Y + drop.Size.Y >= background.Size.Y)
+                    raindropsList.Remove(drop);
             }
         }
 
@@ -153,6 +178,11 @@ namespace molnprojektet
         public void Draw(GameTime gameTime)
         {
             graphicsHandler.DrawSprites(backgroundSprites);
+            foreach (Plant plant in plantList)
+            {
+                plant.Draw(graphicsHandler);
+            }
+            graphicsHandler.DrawSprites(raindropsList);
             graphicsHandler.DrawSprites(spriteList);
             playerCloud.Draw(graphicsHandler);
         }
