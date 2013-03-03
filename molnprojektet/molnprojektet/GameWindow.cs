@@ -53,7 +53,7 @@ namespace molnprojektet
             plantList.Add(plant);
 
             Plant plant2 = new Plant();
-            plant2.Position = new Vector2(Game1.graphics.PreferredBackBufferWidth * 6 / 8, Game1.graphics.PreferredBackBufferHeight - plant2.GetSize().Y);
+            plant2.Position = new Vector2(Game1.graphics.PreferredBackBufferWidth * 6    / 8, Game1.graphics.PreferredBackBufferHeight - plant2.GetSize().Y);
             plantList.Add(plant2);
 
             
@@ -237,25 +237,25 @@ namespace molnprojektet
         {
             playerCloud.AddWindPuff((float)Math.PI / 2, arm);
             lock (playerCloud.locker)
-                playerCloud.Speed += new Vector2(0,120);
+                playerCloud.Speed += new Vector2(0,moveSpeed);
         }
         public void SwipeDown(Arm arm)
         {
             playerCloud.AddWindPuff((float)-Math.PI / 2, arm);
             lock (playerCloud.locker)
-                playerCloud.Speed += new Vector2(0, -120);
+                playerCloud.Speed += new Vector2(0, -moveSpeed);
         }
         public void SwipeLeft(Arm arm)
         {
             playerCloud.AddWindPuff(0, arm);
             lock (playerCloud.locker)
-                playerCloud.Speed += new Vector2(120, 0);
+                playerCloud.Speed += new Vector2(moveSpeed, 0);
         }
         public void SwipeRight(Arm arm)
         {
             playerCloud.AddWindPuff((float)Math.PI, arm);
             lock (playerCloud.locker)
-                playerCloud.Speed += new Vector2(-200, 0);
+                playerCloud.Speed += new Vector2(-moveSpeed, 0);
         }
 
         public void AddPoisonCloud(Vector2 position)

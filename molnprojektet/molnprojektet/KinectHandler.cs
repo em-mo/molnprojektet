@@ -419,6 +419,7 @@ namespace molnprojektet
                         {
                             StopRegndans();
                             regndansHasFailed = true;
+                            System.Console.WriteLine("Mitt");
                         }
                     }
                 }
@@ -442,6 +443,10 @@ namespace molnprojektet
         {
             armsEdgeStopwatch.Stop();
             armsEdgeStopwatch.Reset();
+
+            armsMidStopwatch.Stop();
+            armsMidStopwatch.Reset();
+
             inRegndans = false;
         }
 
