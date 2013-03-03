@@ -51,16 +51,6 @@ namespace molnprojektet
         protected override void Initialize()
         {
             // Create a new SpriteBatch, which can be used to draw textures.
-            spriteBatch = new SpriteBatch(GraphicsDevice);
-
-            GameWindow gameWindow = new GameWindow();
-            gameWindow.Initialize(spriteBatch);
-            windowHandler.ChangeWindow(gameWindow);
-
-            kinectHandler = new KinectHandler(gameWindow);
-            kinectThread = new Thread(() => kinectHandler.run());
-            kinectThread.IsBackground = true;
-            kinectThread.Start();
 
             base.Initialize();
         }
@@ -73,6 +63,19 @@ namespace molnprojektet
         {
             Plant.LoadContent();
             DeathFactory.LoadContent();
+
+            PoisonCloud.LoadContent();
+
+            spriteBatch = new SpriteBatch(GraphicsDevice);
+
+            GameWindow gameWindow = new GameWindow();
+            gameWindow.Initialize(spriteBatch);
+            windowHandler.ChangeWindow(gameWindow);
+
+            kinectHandler = new KinectHandler(gameWindow);
+            kinectThread = new Thread(() => kinectHandler.run());
+            kinectThread.IsBackground = true;
+            kinectThread.Start();
         }
 
         /// <summary>

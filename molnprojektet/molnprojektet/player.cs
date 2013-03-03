@@ -201,6 +201,7 @@ namespace molnprojektet
             }
         }
 
+
         private static float DirectionSpriteThreshold = 4;
 
         /// <summary>
