@@ -29,18 +29,36 @@ namespace molnprojektet
 
         private int dropDelay = 300;
         const float dropSpeed = 200;
-        private const int moveSpeed = 135;
+
+        private const int MOVE_SPEED = 135;
+        private const int ALTERNATE_MOVE_SPEED = 40;
 
         private Stopwatch timer = new Stopwatch();
         Random rand = new Random();
 
         public readonly object dropLock = new object();
 
+        private bool movementType = false;
         private Player playerCloud;
 
         public Player PlayerCloud
         {
             get { return playerCloud; }
+        }
+
+        public bool MovmentType
+        {
+            get { return movementType; }
+        }
+
+        private void ToggleMovementType()
+        {
+            if (movementType)
+                movementType = false;
+            else
+                movementType = true;
+
+            System.Console.WriteLine(movementType);
         }
 
         public void Initialize(SpriteBatch batch)
@@ -97,7 +115,7 @@ namespace molnprojektet
                 notCarrieInstance.Pause();
         }
 
-        private bool[] keysDown = new bool[4];
+        private bool[] keysDown = new bool[5];
 
         public void Update(GameTime gameTime)
         {
@@ -111,6 +129,7 @@ namespace molnprojektet
             #region Key States
             KeyboardState newState = Keyboard.GetState();
             
+            //KEY DOWN
             if(newState.IsKeyDown(Keys.Down) && !keysDown[0])
             {
                 //cloud.Position += new Vector2(0,3);   
@@ -119,6 +138,8 @@ namespace molnprojektet
             }
             if (newState.IsKeyUp(Keys.Down))
                 keysDown[0] = false;
+
+            //KEY UP
             if (newState.IsKeyDown(Keys.Up) && !keysDown[1])
             {
                 //cloud.Position -= new Vector2(0, 3);
@@ -127,6 +148,8 @@ namespace molnprojektet
             }
             if (newState.IsKeyUp(Keys.Up))
                 keysDown[1] = false;
+
+            //KEY RIGHT
             if (newState.IsKeyDown(Keys.Right) && !keysDown[2])
             {
                 //cloud.Position += new Vector2(3, 0);
@@ -135,6 +158,8 @@ namespace molnprojektet
             }
             if (newState.IsKeyUp(Keys.Right))
                 keysDown[2] = false;
+
+            //KEY LEFT
             if (newState.IsKeyDown(Keys.Left) && !keysDown[3])
             {
                 //cloud.Position -= new Vector2(3, 0);
@@ -143,6 +168,15 @@ namespace molnprojektet
             }
             if (newState.IsKeyUp(Keys.Left))
                 keysDown[3] = false;
+
+            //KEY SPACE
+            if (newState.IsKeyDown(Keys.Space) && !keysDown[4])
+            {
+                ToggleMovementType();
+                keysDown[4] = true;
+            }
+            if (newState.IsKeyUp(Keys.Space))
+                keysDown[4] = false;
 
             oldState = newState;
             #endregion
@@ -237,25 +271,58 @@ namespace molnprojektet
         {
             playerCloud.AddWindPuff((float)Math.PI / 2, arm);
             lock (playerCloud.locker)
-                playerCloud.Speed += new Vector2(0,moveSpeed);
+                playerCloud.Speed += new Vector2(0,MOVE_SPEED);
         }
         public void SwipeDown(Arm arm)
         {
             playerCloud.AddWindPuff((float)-Math.PI / 2, arm);
             lock (playerCloud.locker)
-                playerCloud.Speed += new Vector2(0, -moveSpeed);
+                playerCloud.Speed += new Vector2(0, -MOVE_SPEED);
         }
         public void SwipeLeft(Arm arm)
         {
             playerCloud.AddWindPuff(0, arm);
             lock (playerCloud.locker)
-                playerCloud.Speed += new Vector2(moveSpeed, 0);
+                playerCloud.Speed += new Vector2(MOVE_SPEED, 0);
         }
         public void SwipeRight(Arm arm)
         {
             playerCloud.AddWindPuff((float)Math.PI, arm);
             lock (playerCloud.locker)
-                playerCloud.Speed += new Vector2(-moveSpeed, 0);
+                playerCloud.Speed += new Vector2(-MOVE_SPEED, 0);
+        }
+
+        /// <summary>
+        /// For the movement type were many small pushes occur
+        /// </summary>
+        /// <param name="arm"></param>
+        /// <param name="direction"></param>
+        public void AlternativeSwipe(Arm arm, Direction direction)
+        {
+            if (direction == Direction.Up)
+            {
+                playerCloud.AddWindPuff((float)Math.PI / 2, arm);
+                lock (playerCloud.locker)
+                    playerCloud.Speed += new Vector2(0, ALTERNATE_MOVE_SPEED);
+            }
+            else if (direction == Direction.Down)
+            {
+                playerCloud.AddWindPuff((float)-Math.PI / 2, arm);
+                lock (playerCloud.locker)
+                    playerCloud.Speed += new Vector2(0, -ALTERNATE_MOVE_SPEED);
+            }
+            else if (direction == Direction.Left)
+            {
+                playerCloud.AddWindPuff(0, arm);
+                lock (playerCloud.locker)
+                    playerCloud.Speed += new Vector2(ALTERNATE_MOVE_SPEED, 0);
+            }
+            else
+            {
+                playerCloud.AddWindPuff((float)Math.PI, arm);
+                lock (playerCloud.locker)
+                    playerCloud.Speed += new Vector2(-ALTERNATE_MOVE_SPEED, 0);
+            }
         }
 
         public void AddPoisonCloud(Vector2 position)

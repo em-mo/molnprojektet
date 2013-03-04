@@ -49,9 +49,15 @@ namespace molnprojektet
         
         Skeleton currentSkeleton;
 
+        HandChecker leftHandChecker;
+        HandChecker rightHandChecker;
+
         public KinectHandler(GameWindow owner)
         {
             game = owner;
+
+            leftHandChecker = new HandChecker(game, Arm.Left, JointType.HandLeft);
+            rightHandChecker = new HandChecker(game, Arm.Right, JointType.HandRight);
 
             foreach (var potentialSensor in KinectSensor.KinectSensors)
             {
@@ -192,24 +198,82 @@ namespace molnprojektet
 
         private void HandleSwipes()
         {
-            if (CheckForRightHandSwipeUp(currentSkeleton.Joints[JointType.HandRight]))
-                game.SwipeUp(Arm.Right);
-            if (CheckForRightHandSwipeDown(currentSkeleton.Joints[JointType.HandRight]))
-                game.SwipeDown(Arm.Right);
-            if (CheckForRightHandSwipeToLeft(currentSkeleton.Joints[JointType.HandRight]))
-                game.SwipeLeft(Arm.Right);
-            if (CheckForRightHandSwipeToRight(currentSkeleton.Joints[JointType.HandRight]))
-                game.SwipeRight(Arm.Right);
+            if (game.MovmentType)
+            {
+                rightHandChecker.CheckHand(currentSkeleton);
+                leftHandChecker.CheckHand(currentSkeleton);
+            }
+
+            else
+            {
+                if (CheckForRightHandSwipeUp(currentSkeleton.Joints[JointType.HandRight]))
+                    game.SwipeUp(Arm.Right);
+                if (CheckForRightHandSwipeDown(currentSkeleton.Joints[JointType.HandRight]))
+                    game.SwipeDown(Arm.Right);
+                if (CheckForRightHandSwipeToLeft(currentSkeleton.Joints[JointType.HandRight]))
+                    game.SwipeLeft(Arm.Right);
+                if (CheckForRightHandSwipeToRight(currentSkeleton.Joints[JointType.HandRight]))
+                    game.SwipeRight(Arm.Right);
 
 
-            if (CheckForLeftHandSwipeUp(currentSkeleton.Joints[JointType.HandLeft]))
-                game.SwipeUp(Arm.Left);
-            if (CheckForLeftHandSwipeDown(currentSkeleton.Joints[JointType.HandLeft]))
-                game.SwipeDown(Arm.Left);
-            if (CheckForLeftHandSwipeToLeft(currentSkeleton.Joints[JointType.HandLeft]))
-                game.SwipeLeft(Arm.Left);
-            if (CheckForLeftHandSwipeToRight(currentSkeleton.Joints[JointType.HandLeft]))
-                game.SwipeRight(Arm.Left);
+                if (CheckForLeftHandSwipeUp(currentSkeleton.Joints[JointType.HandLeft]))
+                    game.SwipeUp(Arm.Left);
+                if (CheckForLeftHandSwipeDown(currentSkeleton.Joints[JointType.HandLeft]))
+                    game.SwipeDown(Arm.Left);
+                if (CheckForLeftHandSwipeToLeft(currentSkeleton.Joints[JointType.HandLeft]))
+                    game.SwipeLeft(Arm.Left);
+                if (CheckForLeftHandSwipeToRight(currentSkeleton.Joints[JointType.HandLeft]))
+                    game.SwipeRight(Arm.Left);
+            }
+
+        }
+        
+        /// <summary>
+        /// Checks for hand movement by buffering skeletons and comparing them over time.
+        /// Introduces a slight delay to movement reactions
+        /// </summary>
+        private class HandChecker
+        {
+            private const int BUFFER_LENGTH = 6;
+            private readonly int START_POINT_OFFSET = BUFFER_LENGTH / 2;
+
+            private GameWindow game;
+            private Arm arm;
+            private JointType joint;
+            private SkeletonPoint[] handPositions = new SkeletonPoint[BUFFER_LENGTH];
+            private int handPositionsCounter;
+            private int handPositionsHead;
+            
+            public HandChecker(GameWindow game, Arm arm, JointType joint)
+            {
+                this.game = game;
+                this.arm = arm;
+                this.joint = joint;
+            }
+
+            public void CheckHand(Skeleton currentSkeleton)
+            {
+                handPositions[handPositionsHead] = currentSkeleton.Joints[joint].Position;
+                if (handPositionsCounter < 10)
+                    handPositionsCounter++;
+                else
+                {
+                    SkeletonPoint startPoint = handPositions[Math.Abs((handPositionsHead - START_POINT_OFFSET) % BUFFER_LENGTH)];
+                    SkeletonPoint endPoint = handPositions[handPositionsHead];
+
+                    Vector2 movemetVector = new Vector2(endPoint.X - startPoint.X, endPoint.Y - startPoint.Y);
+
+                    if (movemetVector.X < -0.3f)
+                        game.AlternativeSwipe(arm, Direction.Left);
+                    else if (movemetVector.X > 0.3f)
+                        game.AlternativeSwipe(arm, Direction.Right);
+                    if (movemetVector.Y < -0.3f)
+                        game.AlternativeSwipe(arm, Direction.Down);
+                    else if (movemetVector.Y > 0.3f)
+                        game.AlternativeSwipe(arm, Direction.Up);
+                }
+                handPositionsHead = (handPositionsHead + 1) % BUFFER_LENGTH;
+            }
         }
 
         #region Righthand Swipe checks
@@ -372,27 +436,32 @@ namespace molnprojektet
         private Direction armsExpectedDirection = Direction.None;
         private Stopwatch armsEdgeStopwatch = new Stopwatch();
         private Stopwatch armsMidStopwatch = new Stopwatch();
-        private const float ARM_TO_HEAD_THRESHOLD = 0.4f;
+        private Stopwatch startUpDelayStopwatch = new Stopwatch();
 
-        private const float HANDS_TOGETHER = 0.60f;
-        private const long MAX_TIME = 1500; 
+        private const int START_UP_DELAY = 1000;
+        private const float ARM_TO_HIP_THRESHOLD = 0.4f;
+        private const float HANDS_TOGETHER = 0.55f;
+        private const int EDGE_TIME = 1500;
+        private const int MID_TIME = 900;
         /// <summary>
         /// Checks for arms over head and movement of arms side to side, if yes then rain!
         /// </summary>
         private bool CheckRegndans()
         {
-            var headPosition = currentSkeleton.Joints[JointType.Head].Position;
+            var headPositionY = currentSkeleton.Joints[JointType.ShoulderCenter].Position.Y +
+                               (currentSkeleton.Joints[JointType.Head].Position.Y -
+                                currentSkeleton.Joints[JointType.ShoulderCenter].Position.Y) * 0.7;
             // Hans over head
-            if (currentSkeleton.Joints[JointType.HandRight].Position.Y > headPosition.Y &&
-                currentSkeleton.Joints[JointType.HandLeft].Position.Y > headPosition.Y &&
+            if (currentSkeleton.Joints[JointType.HandRight].Position.Y > headPositionY &&
+                currentSkeleton.Joints[JointType.HandLeft].Position.Y > headPositionY &&
                 currentSkeleton.Joints[JointType.HandRight].Position.X - currentSkeleton.Joints[JointType.HandLeft].Position.X < HANDS_TOGETHER)
             {
-                armsToHeadDiff = calculateArmsToHeadDifferens();
+                armsToHeadDiff = calculateArmsToHipDifferens();
 
                 if (inRegndans)
                 {
                     // Arms entering edge
-                    if (Math.Abs(armsToHeadDiff) > ARM_TO_HEAD_THRESHOLD && armsEdgeStopwatch.IsRunning == false)
+                    if (Math.Abs(armsToHeadDiff) > ARM_TO_HIP_THRESHOLD && armsEdgeStopwatch.IsRunning == false)
                     {
                         armsMidStopwatch.Stop();
                         armsMidStopwatch.Reset();
@@ -400,7 +469,7 @@ namespace molnprojektet
                         armsEdgeStopwatch.Start();
                     }
                     // Arms leaving edge
-                    else if (Math.Abs(armsToHeadDiff) < ARM_TO_HEAD_THRESHOLD && armsEdgeStopwatch.IsRunning == true)
+                    else if (Math.Abs(armsToHeadDiff) < ARM_TO_HIP_THRESHOLD && armsEdgeStopwatch.IsRunning == true)
                     {
                         armsEdgeStopwatch.Stop();
                         armsEdgeStopwatch.Reset();
@@ -410,37 +479,51 @@ namespace molnprojektet
                     // Arms at edge
                     else if (armsEdgeStopwatch.IsRunning)
                     {
-                        if (armsEdgeStopwatch.ElapsedMilliseconds > MAX_TIME)
+                        if (armsEdgeStopwatch.ElapsedMilliseconds > EDGE_TIME)
                         {
                             StopRegndans();
                             regndansHasFailed = true;
                             System.Console.WriteLine("edge");
-                            
                         }
                     }
                     // Arms in middle
                     else if (armsMidStopwatch.IsRunning == true)
                     {
-                        if (armsMidStopwatch.ElapsedMilliseconds > MAX_TIME)
+                        if (armsMidStopwatch.ElapsedMilliseconds > MID_TIME)
                         {
                             StopRegndans();
                             regndansHasFailed = true;
-                            System.Console.WriteLine("Mitt");
+                            System.Console.WriteLine("Mid");
                         }
                     }
                 }
                 // Hands to side extreme
-                else if (Math.Abs(armsToHeadDiff) > ARM_TO_HEAD_THRESHOLD && !regndansHasFailed)
+                else if (Math.Abs(armsToHeadDiff) > ARM_TO_HIP_THRESHOLD && !regndansHasFailed)
                 {
-                    StartRegndans();
+                    if (startUpDelayStopwatch.IsRunning == false)
+                        startUpDelayStopwatch.Start();
+
+                    if (startUpDelayStopwatch.ElapsedMilliseconds > START_UP_DELAY)
+                    {
+                        startUpDelayStopwatch.Stop();
+                        startUpDelayStopwatch.Reset();
+                        StartRegndans();
+                    }
+                }
+                else
+                {
+                    if (startUpDelayStopwatch.IsRunning)
+                    {
+                        startUpDelayStopwatch.Stop();
+                        startUpDelayStopwatch.Reset();
+                    }
                 }
             }
+                //Hands down or apart
             else
             {
                 StopRegndans();
                 regndansHasFailed = false;
-                System.Console.WriteLine("upp med händerna");
-
             }
             return inRegndans;
         }
@@ -507,13 +590,13 @@ namespace molnprojektet
         /// Produces a float depending on the hands position relative to the head.
         /// </summary>
         /// <returns></returns>
-        private float calculateArmsToHeadDifferens()
+        private float calculateArmsToHipDifferens()
         {
             float leftHandDifferens;
             float rightHandDifferens;
 
-            leftHandDifferens = currentSkeleton.Joints[JointType.HandLeft].Position.X - currentSkeleton.Joints[JointType.Head].Position.X;
-            rightHandDifferens = currentSkeleton.Joints[JointType.HandRight].Position.X - currentSkeleton.Joints[JointType.Head].Position.X;
+            leftHandDifferens = currentSkeleton.Joints[JointType.HandLeft].Position.X - currentSkeleton.Joints[JointType.HipCenter].Position.X;
+            rightHandDifferens = currentSkeleton.Joints[JointType.HandRight].Position.X - currentSkeleton.Joints[JointType.HipCenter].Position.X;
 
             return leftHandDifferens + rightHandDifferens;
 
