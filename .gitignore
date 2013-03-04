@@ -3,6 +3,7 @@
 *.csproj
 *.contentproj
 *.cachefile
+*.pfx
 Game.ico
 GameThumbnail.png
 molnprojektet.csproj.user
