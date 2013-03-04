@@ -44,6 +44,10 @@ namespace molnprojektet
             speed.X += (float)Shared.Random.Next(-RANDOM_SPEED, RANDOM_SPEED) * (float)gameTime.ElapsedGameTime.TotalSeconds;
         }
 
+        /// <summary>
+        /// True if out of bounds
+        /// </summary>
+        /// <returns></returns>
         public bool OutOfBounds()
         {
             return poisonCloudSprite.Position.Y < -poisonCloudSprite.Size.Y;

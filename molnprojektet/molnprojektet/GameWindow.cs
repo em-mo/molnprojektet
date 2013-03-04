@@ -27,18 +27,25 @@ namespace molnprojektet
         SoundEffect notCarrie;
         SoundEffectInstance notCarrieInstance;
 
+        // Raindrops
         private int dropDelay = 300;
-        const float dropSpeed = 200;
+        private const float DROP_SPEED = 200;
 
+        // Speed for first algorithm
         private const int MOVE_SPEED = 135;
+        // Speed for second algorithm
         private const int ALTERNATE_MOVE_SPEED = 40;
+        private float PLANT_RESET_TIME = 2000;
 
-        private Stopwatch timer = new Stopwatch();
+        private Stopwatch plantResetCounter = new Stopwatch();
+
+        private Stopwatch rainDropsTimer = new Stopwatch();
         Random rand = new Random();
 
         public readonly object dropLock = new object();
 
-        private bool movementType = false;
+        // Chooses algorithm for hand movement
+        private bool movementType = true;
         private Player playerCloud;
 
         public Player PlayerCloud
@@ -64,7 +71,7 @@ namespace molnprojektet
         public void Initialize(SpriteBatch batch)
         {
 
-            timer.Start();
+            rainDropsTimer.Start();
 
             Plant plant = new Plant();
             plant.Position = new Vector2(Game1.graphics.PreferredBackBufferWidth / 8, Game1.graphics.PreferredBackBufferHeight - plant.GetSize().Y);
@@ -130,69 +137,57 @@ namespace molnprojektet
             KeyboardState newState = Keyboard.GetState();
             
             //KEY DOWN
-            if(newState.IsKeyDown(Keys.Down) && !keysDown[0])
+            if (newState.IsKeyDown(Keys.Down) && !oldState.IsKeyDown(Keys.Down))
             {
-                //cloud.Position += new Vector2(0,3);   
                 SwipeDown(Arm.Left);
-                keysDown[0] = true;
             }
-            if (newState.IsKeyUp(Keys.Down))
-                keysDown[0] = false;
 
             //KEY UP
-            if (newState.IsKeyDown(Keys.Up) && !keysDown[1])
+            if (newState.IsKeyDown(Keys.Up) && !oldState.IsKeyDown(Keys.Up))
             {
-                //cloud.Position -= new Vector2(0, 3);
                 SwipeUp(Arm.Right);
-                keysDown[1] = true;
             }
-            if (newState.IsKeyUp(Keys.Up))
-                keysDown[1] = false;
 
             //KEY RIGHT
-            if (newState.IsKeyDown(Keys.Right) && !keysDown[2])
+            if (newState.IsKeyDown(Keys.Right) && !oldState.IsKeyDown(Keys.Right))
             {
-                //cloud.Position += new Vector2(3, 0);
                 SwipeRight(Arm.Right);
-                keysDown[2] = true;
             }
-            if (newState.IsKeyUp(Keys.Right))
-                keysDown[2] = false;
 
             //KEY LEFT
-            if (newState.IsKeyDown(Keys.Left) && !keysDown[3])
+            if (newState.IsKeyDown(Keys.Left) && !oldState.IsKeyDown(Keys.Left))
             {
-                //cloud.Position -= new Vector2(3, 0);
                 SwipeLeft(Arm.Left);
-                keysDown[3] = true;
             }
-            if (newState.IsKeyUp(Keys.Left))
-                keysDown[3] = false;
 
             //KEY SPACE
-            if (newState.IsKeyDown(Keys.Space) && !keysDown[4])
+            if (newState.IsKeyDown(Keys.Space) && !oldState.IsKeyDown(Keys.Space))
             {
                 ToggleMovementType();
-                keysDown[4] = true;
             }
-            if (newState.IsKeyUp(Keys.Space))
-                keysDown[4] = false;
 
             oldState = newState;
             #endregion
         }
 
+        /// <summary>
+        /// Checks for collisions between player and poison clouds
+        /// </summary>
         private void CheckForCloudCollision()
         {
+            BoundingRect playerRect = playerCloud.GetBounds();
             foreach (PoisonCloud  cloud in poisonCloudList)
             {
-                if (cloud.GetSprite().Bounds.Intersects(playerCloud.GetBounds()))
+                if (cloud.GetSprite().Bounds.Intersects(playerRect))
                 {
                     playerCloud.IsSick = true;
                 }
             }
         }
 
+        /// <summary>
+        /// Resets clouds if all plants are fully grown
+        /// </summary>
         private void CheckForResetFlowers()
         {
             bool reset = true;
@@ -204,16 +199,31 @@ namespace molnprojektet
                     break;
                 }
             }
-            if(reset)
+
+            if (reset)
+            {
+                plantResetCounter.Start();
+            }
+
+            if (plantResetCounter.ElapsedMilliseconds > PLANT_RESET_TIME)
+            {
                 foreach (Plant plant in plantList)
                 {
                     plant.Reset();
                 }
+                plantResetCounter.Stop();
+                plantResetCounter.Reset();
+            }
+        }
+
+        public void AddPoisonCloud(Vector2 position)
+        {
+            poisonCloudList.Add(new PoisonCloud(position));
         }
 
         public void releaseRainDrops()
         {
-            if (timer.ElapsedMilliseconds > dropDelay)
+            if (rainDropsTimer.ElapsedMilliseconds > dropDelay)
             {
                 Sprite drop = new Sprite();
                 drop.Initialize();
@@ -225,7 +235,7 @@ namespace molnprojektet
                 lock(dropLock)
                     raindropsList.Add(drop);
 
-                timer.Restart();
+                rainDropsTimer.Restart();
             }
         }
 
@@ -237,16 +247,16 @@ namespace molnprojektet
                 {
                     Sprite drop = raindropsList.ElementAt(i);
 
-                    drop.Position += new Vector2(0, dropSpeed * gameTime.ElapsedGameTime.Milliseconds / 1000);
+                    drop.Position += new Vector2(0, DROP_SPEED * gameTime.ElapsedGameTime.Milliseconds / 1000);
 
                     foreach (Plant plant in plantList)
                     {
-                        if (plant.CheckCollisionWithRaindrops(drop))    
-                            raindropsList.Remove(drop);
+                        if (plant.CheckCollisionWithRaindrops(drop))
+                            raindropsList.RemoveAt(i);
                     }
 
                     if (drop.Position.Y + drop.Size.Y >= background.Size.Y)
-                            raindropsList.Remove(drop);
+                            raindropsList.RemoveAt(i);
                 }
             }
         }
@@ -261,35 +271,48 @@ namespace molnprojektet
 
         private void UpdatePoisonClouds(GameTime gameTime)
         {
-            foreach (PoisonCloud cloud in poisonCloudList)
+            PoisonCloud cloud;
+            for (int i = poisonCloudList.Count - 1; i >= 0; i--)
             {
+                cloud = poisonCloudList.ElementAt(i);
                 cloud.Update(gameTime);
+
+                if (cloud.OutOfBounds())
+                    poisonCloudList.RemoveAt(i);
             }
         }
 
         public void SwipeUp(Arm arm)
         {
-            playerCloud.AddWindPuff((float)Math.PI / 2, arm);
             lock (playerCloud.locker)
-                playerCloud.Speed += new Vector2(0,MOVE_SPEED);
+            {
+                playerCloud.AddWindPuff((float)Math.PI / 2, arm);
+                playerCloud.Speed += new Vector2(0, MOVE_SPEED);
+            }
         }
         public void SwipeDown(Arm arm)
         {
-            playerCloud.AddWindPuff((float)-Math.PI / 2, arm);
             lock (playerCloud.locker)
+            {
+                playerCloud.AddWindPuff((float)-Math.PI / 2, arm);
                 playerCloud.Speed += new Vector2(0, -MOVE_SPEED);
+            }
         }
         public void SwipeLeft(Arm arm)
         {
-            playerCloud.AddWindPuff(0, arm);
             lock (playerCloud.locker)
+            {
+                playerCloud.AddWindPuff(0, arm);
                 playerCloud.Speed += new Vector2(MOVE_SPEED, 0);
+            }
         }
         public void SwipeRight(Arm arm)
         {
-            playerCloud.AddWindPuff((float)Math.PI, arm);
             lock (playerCloud.locker)
+            {
+                playerCloud.AddWindPuff((float)Math.PI, arm);
                 playerCloud.Speed += new Vector2(-MOVE_SPEED, 0);
+            }
         }
 
         /// <summary>
@@ -301,35 +324,37 @@ namespace molnprojektet
         {
             if (direction == Direction.Up)
             {
-                playerCloud.AddWindPuff((float)Math.PI / 2, arm);
                 lock (playerCloud.locker)
+                {
+                    playerCloud.AddWindPuff((float)Math.PI / 2, arm);
                     playerCloud.Speed += new Vector2(0, ALTERNATE_MOVE_SPEED);
+                }
             }
             else if (direction == Direction.Down)
             {
-                playerCloud.AddWindPuff((float)-Math.PI / 2, arm);
                 lock (playerCloud.locker)
+                {
+                    playerCloud.AddWindPuff((float)-Math.PI / 2, arm);
                     playerCloud.Speed += new Vector2(0, -ALTERNATE_MOVE_SPEED);
+                }
             }
             else if (direction == Direction.Left)
             {
-                playerCloud.AddWindPuff(0, arm);
                 lock (playerCloud.locker)
+                {
+                    playerCloud.AddWindPuff(0, arm);
                     playerCloud.Speed += new Vector2(ALTERNATE_MOVE_SPEED, 0);
+                }
             }
             else
             {
-                playerCloud.AddWindPuff((float)Math.PI, arm);
                 lock (playerCloud.locker)
+                {
+                    playerCloud.AddWindPuff((float)Math.PI, arm);
                     playerCloud.Speed += new Vector2(-ALTERNATE_MOVE_SPEED, 0);
+                }
             }
         }
-
-        public void AddPoisonCloud(Vector2 position)
-        {
-            poisonCloudList.Add(new PoisonCloud(position));
-        }
-
 
         public void Draw(GameTime gameTime)
         {

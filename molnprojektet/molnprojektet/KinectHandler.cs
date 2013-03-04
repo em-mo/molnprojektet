@@ -70,8 +70,17 @@ namespace molnprojektet
 
             if (null != this.sensor)
             {
+                TransformSmoothParameters smoothingParam = new TransformSmoothParameters();
+                {
+                    smoothingParam.Smoothing = 0.5f;
+                    smoothingParam.Correction = 0.1f;
+                    smoothingParam.Prediction = 0.5f;
+                    smoothingParam.JitterRadius = 0.07f;
+                    smoothingParam.MaxDeviationRadius = 0.1f;
+                };
+
                 // Turn on the skeleton stream to receive skeleton frames
-                this.sensor.SkeletonStream.Enable();
+                this.sensor.SkeletonStream.Enable(smoothingParam);
 
                 // Start the sensor!
                 try
@@ -431,18 +440,15 @@ namespace molnprojektet
         private bool inRegndans = false;
         private bool regndansHasFailed = false;
         private float armsToHeadDiff = 0;
-        private float armsToHeadPreviousDiff = 0;
-        private Direction armsMovementDirection = Direction.None;
-        private Direction armsExpectedDirection = Direction.None;
         private Stopwatch armsEdgeStopwatch = new Stopwatch();
         private Stopwatch armsMidStopwatch = new Stopwatch();
         private Stopwatch startUpDelayStopwatch = new Stopwatch();
 
-        private const int START_UP_DELAY = 1000;
+        private const int START_UP_DELAY = 700;
         private const float ARM_TO_HIP_THRESHOLD = 0.4f;
         private const float HANDS_TOGETHER = 0.55f;
-        private const int EDGE_TIME = 1500;
-        private const int MID_TIME = 900;
+        private const int EDGE_TIME = 1700;
+        private const int MID_TIME = 1100;
         /// <summary>
         /// Checks for arms over head and movement of arms side to side, if yes then rain!
         /// </summary>
@@ -450,7 +456,7 @@ namespace molnprojektet
         {
             var headPositionY = currentSkeleton.Joints[JointType.ShoulderCenter].Position.Y +
                                (currentSkeleton.Joints[JointType.Head].Position.Y -
-                                currentSkeleton.Joints[JointType.ShoulderCenter].Position.Y) * 0.7;
+                                currentSkeleton.Joints[JointType.ShoulderCenter].Position.Y) * 0.5;
             // Hans over head
             if (currentSkeleton.Joints[JointType.HandRight].Position.Y > headPositionY &&
                 currentSkeleton.Joints[JointType.HandLeft].Position.Y > headPositionY &&
@@ -497,8 +503,9 @@ namespace molnprojektet
                         }
                     }
                 }
-                // Hands to side extreme
-                else if (Math.Abs(armsToHeadDiff) > ARM_TO_HIP_THRESHOLD && !regndansHasFailed)
+                // Hands in mid before regndans
+                // Start after a delay
+                else if (Math.Abs(armsToHeadDiff) < ARM_TO_HIP_THRESHOLD && !regndansHasFailed)
                 {
                     if (startUpDelayStopwatch.IsRunning == false)
                         startUpDelayStopwatch.Start();
@@ -530,11 +537,23 @@ namespace molnprojektet
 
         private void StopRegndans()
         {
-            armsEdgeStopwatch.Stop();
-            armsEdgeStopwatch.Reset();
+            if (armsEdgeStopwatch.IsRunning)
+            {
+                armsEdgeStopwatch.Stop();
+                armsEdgeStopwatch.Reset();
+            }
 
-            armsMidStopwatch.Stop();
-            armsMidStopwatch.Reset();
+            if (armsMidStopwatch.IsRunning)
+            {
+                armsMidStopwatch.Stop();
+                armsMidStopwatch.Reset();
+            }
+
+            if (startUpDelayStopwatch.IsRunning)
+            {
+                startUpDelayStopwatch.Stop();
+                startUpDelayStopwatch.Reset();
+            }
 
             inRegndans = false;
         }

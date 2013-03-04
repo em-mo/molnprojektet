@@ -11,19 +11,18 @@ namespace molnprojektet
     {
         enum PlayerSprites { Cloud, LeftHumerus, LeftUlna, LeftHand, RightHumerus, RightUlna, RightHand };
         private Vector2 speed = new Vector2(0,0);
-        private DateTime currentTime = DateTime.Now;
-        private DateTime previusTime = DateTime.Now;
 
-        enum CloudDirection {None, Left, Right}
-        private Dictionary<CloudDirection, Texture2D> cloudTextures;
+        private Dictionary<Direction, Texture2D> cloudTextures;
         private Sprite windPuff;
         private bool isSick = false;
-        private const float SICKPERIOD = 5000;
         private float sickTime;
 
-        private const float ACCELERATION = -150;
+        private const float SICKPERIOD = 5000;
+        private const float DRAG_ACCELERATION = -150;
         private const float MAX_SPEED = 500;
-        private const float armScale = 0.75f;
+        private const float ARM_SCALE = 0.75f;
+        private static float DIRECTION_SPRITE_THRESHOLD = 100;
+
 
         private float rightHumerusOffsetX;
         private float rightHumerusOffsetY;
@@ -33,15 +32,18 @@ namespace molnprojektet
         private float leftHumerusOffsetY;
         private float leftUlnaOffset;
         private float leftHandOffset;
+
         private Vector2 ScreenOffset;
 
         private List<Sprite> rainDrops = new List<Sprite>();
+        private List<WindPuffMessage> windPuffList = new List<WindPuffMessage>();
+
         private Dictionary<PlayerSprites, Sprite> spriteDict;
 
         private Vector2 position;
 
+        private double shadeTimer;        
         private Queue<Vector2> shadePositions;
-        private DateTime shadeTimer = DateTime.Now;
         // Amount of time between two shades
         private const int SHADE_ADD_DELAY = 40;
         // Minimum speed before shades appear
@@ -63,6 +65,9 @@ namespace molnprojektet
             }
         }
 
+        /// <summary>
+        /// Position setting with bound checking
+        /// </summary>
         public Vector2 Position
         {
             get { return position; }
@@ -167,13 +172,13 @@ namespace molnprojektet
             windPuff = new Sprite();
             windPuff.Initialize();
 
-            cloudTextures = new Dictionary<CloudDirection, Texture2D>();
-            cloudTextures.Add(CloudDirection.None, Game1.contentManager.Load<Texture2D>(@"Images\Cloud"));
-            cloudTextures.Add(CloudDirection.Left, Game1.contentManager.Load<Texture2D>(@"Images\Cloud_Move_Left"));
-            cloudTextures.Add(CloudDirection.Right, Game1.contentManager.Load<Texture2D>(@"Images\Cloud_Move_Right"));
+            cloudTextures = new Dictionary<Direction, Texture2D>();
+            cloudTextures.Add(Direction.None, Game1.contentManager.Load<Texture2D>(@"Images\Cloud"));
+            cloudTextures.Add(Direction.Left, Game1.contentManager.Load<Texture2D>(@"Images\Cloud_Move_Left"));
+            cloudTextures.Add(Direction.Right, Game1.contentManager.Load<Texture2D>(@"Images\Cloud_Move_Right"));
 
             windPuff.Texture = Game1.contentManager.Load<Texture2D>(@"Images\wind");
-            spriteDict[PlayerSprites.Cloud].Texture = cloudTextures[CloudDirection.None];
+            spriteDict[PlayerSprites.Cloud].Texture = cloudTextures[Direction.None];
             spriteDict[PlayerSprites.LeftHumerus].Texture = Game1.contentManager.Load<Texture2D>(@"Images\Humerus_left");
             spriteDict[PlayerSprites.LeftHand].Texture = Game1.contentManager.Load<Texture2D>(@"Images\Hand_left");
             spriteDict[PlayerSprites.RightHumerus].Texture = Game1.contentManager.Load<Texture2D>(@"Images\Humerus_right");
@@ -215,6 +220,8 @@ namespace molnprojektet
                 UpdateSpeed(gameTime);
                 Position += speed * (float)gameTime.ElapsedGameTime.TotalSeconds;
 
+                UpdateShades(gameTime);
+
                 if (isSick)
                     UpdateSickTime(gameTime);
 
@@ -228,8 +235,6 @@ namespace molnprojektet
                 isSick = false;
         }
 
-        private static float DirectionSpriteThreshold = 4;
-
         /// <summary>
         /// Updates the change of speed over time
         /// </summary>
@@ -240,13 +245,13 @@ namespace molnprojektet
             if (speed != Vector2.Zero)
             {
                 if (speed.X > 0)
-                    newSpeed.X = ACCELERATION * (float)gameTime.ElapsedGameTime.TotalSeconds + speed.X;
+                    newSpeed.X = DRAG_ACCELERATION * (float)gameTime.ElapsedGameTime.TotalSeconds + speed.X;
                 else if (speed.X < 0)
-                    newSpeed.X = (-ACCELERATION) * (float)gameTime.ElapsedGameTime.TotalSeconds + speed.X;
+                    newSpeed.X = (-DRAG_ACCELERATION) * (float)gameTime.ElapsedGameTime.TotalSeconds + speed.X;
                 if (speed.Y > 0)
-                    newSpeed.Y = ACCELERATION * (float)gameTime.ElapsedGameTime.TotalSeconds + speed.Y;
+                    newSpeed.Y = DRAG_ACCELERATION * (float)gameTime.ElapsedGameTime.TotalSeconds + speed.Y;
                 else if (speed.Y < 0)
-                    newSpeed.Y = (-ACCELERATION) * (float)gameTime.ElapsedGameTime.TotalSeconds + speed.Y;
+                    newSpeed.Y = (-DRAG_ACCELERATION) * (float)gameTime.ElapsedGameTime.TotalSeconds + speed.Y;
 
                 if (newSpeed.X < 0.15f && newSpeed.X > -0.15f)
                     newSpeed.X = 0;
@@ -256,12 +261,12 @@ namespace molnprojektet
             }
 
             // Change cloud image depending on movement direction and speed
-            if (speed.X < -DirectionSpriteThreshold)
-                spriteDict[PlayerSprites.Cloud].Texture = cloudTextures[CloudDirection.Left];
-            else if (speed.X > DirectionSpriteThreshold)
-                spriteDict[PlayerSprites.Cloud].Texture = cloudTextures[CloudDirection.Right];
+            if (speed.X < -DIRECTION_SPRITE_THRESHOLD)
+                spriteDict[PlayerSprites.Cloud].Texture = cloudTextures[Direction.Left];
+            else if (speed.X > DIRECTION_SPRITE_THRESHOLD)
+                spriteDict[PlayerSprites.Cloud].Texture = cloudTextures[Direction.Right];
             else
-                spriteDict[PlayerSprites.Cloud].Texture = cloudTextures[CloudDirection.None];
+                spriteDict[PlayerSprites.Cloud].Texture = cloudTextures[Direction.None];
         }
 
         private void InitArms()
@@ -367,12 +372,38 @@ namespace molnprojektet
                 spriteDict[PlayerSprites.RightHand].Rotation = ulnaRotation;
             }
         }
-        
-        private void DrawShades(GraphicsHandler g)
+
+        /// <summary>
+        /// Adds windpuff at selected hand rotated after the direction parameter
+        /// </summary>
+        /// <param name="rotation">The rotation of the puff in radians</param>
+        /// <param name="arm">Arm target for wind puff</param>
+        public void AddWindPuff(float rotation, Arm arm)
         {
-            if (shadeTimer < DateTime.Now) 
+            Sprite hand;
+            float offset;
+            if (arm == Arm.Left)
             {
-                shadeTimer = DateTime.Now.AddMilliseconds(SHADE_ADD_DELAY);
+                hand = spriteDict[PlayerSprites.LeftHand];
+                offset = -hand.Size.X;
+            }
+            else
+            {
+                hand = spriteDict[PlayerSprites.RightHand];
+                offset = hand.Size.X;
+            }
+
+            Vector2 position = new Vector2(hand.Position.X + offset, hand.Position.Y);
+
+            windPuffList.Add(new WindPuffMessage(rotation, position));
+        }
+
+        private void UpdateShades(GameTime gameTime)
+        {
+            shadeTimer += gameTime.ElapsedGameTime.TotalMilliseconds;
+            if (shadeTimer > SHADE_ADD_DELAY)
+            {
+                shadeTimer -= SHADE_ADD_DELAY;
 
                 if (speed.Length() > SHADE_SPEED_THRESHOLD)
                     shadePositions.Enqueue(position);
@@ -382,7 +413,10 @@ namespace molnprojektet
                 if (shadePositions.Count > MAX_SHADES)
                     shadePositions.Dequeue();
             }
-
+        }
+        
+        private void DrawShades(GraphicsHandler g)
+        {
             if (shadePositions.Count > 0)
             {
                 float alpha = SHADE_TRANSPARENCY;
@@ -420,28 +454,6 @@ namespace molnprojektet
             }
         }
 
-        private List<WindPuffMessage> windPuffList = new List<WindPuffMessage>();
-
-        public void AddWindPuff(float direction, Arm arm)
-        {
-            Sprite hand;
-            float offset;
-            if (arm == Arm.Left)
-            {
-                hand = spriteDict[PlayerSprites.LeftHand];
-                offset = -hand.Size.X;
-            }
-            else
-            {
-                hand = spriteDict[PlayerSprites.RightHand];
-                offset = hand.Size.X;
-            }
-
-            Vector2 position = new Vector2(hand.Position.X + offset, hand.Position.Y);
-
-            windPuffList.Add(new WindPuffMessage(direction, position));
-        }
-
         private void DrawWindPuff(GraphicsHandler g)
         {
             WindPuffMessage puff;
@@ -459,6 +471,15 @@ namespace molnprojektet
             }
         }
 
+        public void DrawSick(GraphicsHandler g)
+        {
+            Color color = Color.ForestGreen;
+            color.A = 128;
+            spriteDict[PlayerSprites.Cloud].Color = color;
+            g.DrawSprite(spriteDict[PlayerSprites.Cloud]);
+            spriteDict[PlayerSprites.Cloud].Color = Color.White;
+        }
+
         public void Draw(GraphicsHandler g)
         {
             lock (locker)
@@ -471,15 +492,6 @@ namespace molnprojektet
                     DrawSick(g);
             }
         }
-
-        public void DrawSick(GraphicsHandler g)
-        {
-            Color color = Color.ForestGreen;
-            color.A = 128;
-            spriteDict[PlayerSprites.Cloud].Color = color;
-            g.DrawSprite(spriteDict[PlayerSprites.Cloud]);
-            spriteDict[PlayerSprites.Cloud].Color = Color.White;
-            }
-        }
     }
+}
 

@@ -22,6 +22,8 @@ namespace molnprojektet
         private Vector2 size;
         private bool isVisable;
         private SpriteEffects effects;
+
+        // Bounds is set automatically from position, scale and size
         private BoundingRect bounds;
         
         /* Animation properties */
@@ -57,7 +59,7 @@ namespace molnprojektet
             get { return size * scale; }
             set
             {
-                size = value; //* scale;
+                size = value;
                 bounds.Max = bounds.Min + size*scale;
             }
         }
