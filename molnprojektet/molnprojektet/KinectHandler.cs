@@ -84,9 +84,10 @@ namespace molnprojektet
         {
             while (running)
             {
-                System.Threading.Thread.Sleep(1);
                 if (sensor != null)
                     ProcessSkeletonFrame();
+                else
+                    System.Threading.Thread.Sleep(10);
             }
         }
 
@@ -112,13 +113,7 @@ namespace molnprojektet
 
                 HandleSwipes();
 
-                if (CheckRegndans() && !game.PlayerCloud.IsSick)
-                {
-                    game.releaseRainDrops();
-                    game.StartNotCarrie();
-                }
-                else
-                    game.StopNotCarrie();
+                HandleRegndans();
             }
         }
 
@@ -156,7 +151,18 @@ namespace molnprojektet
             }
         }
 
-        public void HandleArmAngles()
+        private void HandleRegndans()
+        {
+            if (CheckRegndans() && !game.PlayerCloud.IsSick)
+            {
+                game.releaseRainDrops();
+                game.StartNotCarrie();
+            }
+            else
+                game.StopNotCarrie();
+        }
+
+        private void HandleArmAngles()
         {
             float leftHumerusAngle = CalculateArmAngle(JointType.ShoulderLeft, JointType.ElbowLeft, Arm.Left);
             float leftUlnaAngle = CalculateArmAngle(JointType.ElbowLeft, JointType.WristLeft, Arm.Left);
@@ -460,6 +466,7 @@ namespace molnprojektet
         private const int ARMS_MOVEMENT_RESET_THRESHOLD = 2;
         private int armsMovementResetCounter = 0;
         /// <summary>
+        /// NOT USED
         /// Calculates the current moving direction of the arms.
         /// Can be set to only change direction after a couple of frames of differing movement to allow for some noise.
         /// </summary>
