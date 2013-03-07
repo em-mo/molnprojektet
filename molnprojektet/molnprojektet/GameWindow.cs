@@ -46,6 +46,7 @@ namespace molnprojektet
 
         // Chooses algorithm for hand movement
         private bool movementType = true;
+
         private Player playerCloud;
 
         public Player PlayerCloud

@@ -205,6 +205,9 @@ namespace molnprojektet
             return (float)Utils.CalculateAngle(vector1, vector2);
         }
 
+        /// <summary>
+        /// Chooses algorithm
+        /// </summary>
         private void HandleSwipes()
         {
             if (game.MovmentType)
@@ -245,6 +248,7 @@ namespace molnprojektet
         {
             private const int BUFFER_LENGTH = 6;
             private readonly int START_POINT_OFFSET = BUFFER_LENGTH / 2;
+            private const float MOVEMENT_THRESHOLD = 0.3f;
 
             private GameWindow game;
             private Arm arm;
@@ -272,13 +276,13 @@ namespace molnprojektet
 
                     Vector2 movemetVector = new Vector2(endPoint.X - startPoint.X, endPoint.Y - startPoint.Y);
 
-                    if (movemetVector.X < -0.3f)
+                    if (movemetVector.X < -MOVEMENT_THRESHOLD)
                         game.AlternativeSwipe(arm, Direction.Left);
-                    else if (movemetVector.X > 0.3f)
+                    else if (movemetVector.X > MOVEMENT_THRESHOLD)
                         game.AlternativeSwipe(arm, Direction.Right);
-                    if (movemetVector.Y < -0.3f)
+                    if (movemetVector.Y < -MOVEMENT_THRESHOLD)
                         game.AlternativeSwipe(arm, Direction.Down);
-                    else if (movemetVector.Y > 0.3f)
+                    else if (movemetVector.Y > MOVEMENT_THRESHOLD)
                         game.AlternativeSwipe(arm, Direction.Up);
                 }
                 handPositionsHead = (handPositionsHead + 1) % BUFFER_LENGTH;
@@ -567,43 +571,6 @@ namespace molnprojektet
         private const float EXPECTED_NOISE = 0.015f;
         private const int ARMS_MOVEMENT_RESET_THRESHOLD = 2;
         private int armsMovementResetCounter = 0;
-        /// <summary>
-        /// NOT USED
-        /// Calculates the current moving direction of the arms.
-        /// Can be set to only change direction after a couple of frames of differing movement to allow for some noise.
-        /// </summary>
-        /// <param name="currentPosition"></param>
-        /// <param name="previousPosition"></param>
-        /// <param name="previousDirection"></param>
-        /// <returns></returns>
-        private Direction calculateArmsMovement(float currentPosition, float previousPosition, Direction previousDirection)
-        {
-            Direction direction = Direction.None;
-            if (currentPosition - previousPosition < 0 - EXPECTED_NOISE)
-            {
-                direction = Direction.Left;
-            }
-            else if (currentPosition - previousPosition > 0 + EXPECTED_NOISE)
-            {
-                direction = Direction.Right;
-            }
-
-            if (direction != previousDirection)
-            {
-                armsMovementResetCounter++;
-                if (armsMovementResetCounter > ARMS_MOVEMENT_RESET_THRESHOLD)
-                    armsMovementResetCounter = 0;
-                else if (direction == previousDirection)
-                {
-                    armsMovementResetCounter = 0;
-                    direction = previousDirection;
-                }
-                else
-                    direction = previousDirection;
-            }
-
-            return direction;
-        }
 
         /// <summary>
         /// Produces a float depending on the hands position relative to the head.
