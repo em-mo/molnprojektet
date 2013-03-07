@@ -27,8 +27,6 @@ namespace molnprojektet
 
         private const float FPS = 200;
 
-        //private KinectHandler kinectHandler;
-
         public Game1()
         {
             graphics = new GraphicsDeviceManager(this); 
@@ -50,8 +48,6 @@ namespace molnprojektet
         /// </summary>
         protected override void Initialize()
         {
-            // Create a new SpriteBatch, which can be used to draw textures.
-
             base.Initialize();
         }
 

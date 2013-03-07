@@ -71,7 +71,6 @@ namespace molnprojektet
 
         public void Initialize(SpriteBatch batch)
         {
-
             rainDropsTimer.Start();
 
             Plant plant = new Plant();
@@ -222,6 +221,9 @@ namespace molnprojektet
             poisonCloudList.Add(new PoisonCloud(position));
         }
 
+        /// <summary>
+        /// creates a new raindrop under the cloud after every interval (defined by dropDelay)
+        /// </summary>
         public void releaseRainDrops()
         {
             if (rainDropsTimer.ElapsedMilliseconds > dropDelay)

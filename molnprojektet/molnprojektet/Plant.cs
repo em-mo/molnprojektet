@@ -37,6 +37,9 @@ namespace molnprojektet
 
         }
         
+        /// <summary>
+        /// Resets the Plants texture to the original teture.
+        /// </summary>
         public void Reset()
         {
             raindropsCount = 0;
@@ -57,11 +60,16 @@ namespace molnprojektet
             growthSpriteList.Add(stage4);
         }
 
+        /// <summary>
+        /// checks if the plant has any collision with the raindrop Sprite
+        /// </summary>
+        /// <param name="rainDrop"></param>
+        /// <returns></returns>
         public bool CheckCollisionWithRaindrops(Sprite raindrop)
         {
             if(raindropsCount != 12)
             {
-                if (CheckForCollision(raindrop))
+                if (plantSprite.Bounds.Contains(raindrop.Bounds))
                 {
                     raindropsCount++;
                     CheckForEvolve();
@@ -71,13 +79,9 @@ namespace molnprojektet
             return false;
         }
 
-        private bool CheckForCollision(Sprite rainDrop)
-        {
-            if (plantSprite.Bounds.Contains(rainDrop.Bounds))
-                return true;
-            return false;
-        }
-
+        /// <summary>
+        /// checks if the plant should grow(change texture)
+        /// </summary>
         private void CheckForEvolve()
         {
             if (raindropsCount % 4 == 0)
