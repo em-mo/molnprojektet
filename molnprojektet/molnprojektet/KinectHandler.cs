@@ -266,16 +266,21 @@ namespace molnprojektet
 
             public void CheckHand(Skeleton currentSkeleton)
             {
+                // Add new element to array                
                 handPositions[handPositionsHead] = currentSkeleton.Joints[joint].Position;
+                //Sub-optimal initialization
                 if (handPositionsCounter < 10)
                     handPositionsCounter++;
                 else
                 {
+                    // Get old value from array
                     SkeletonPoint startPoint = handPositions[Math.Abs((handPositionsHead - START_POINT_OFFSET) % BUFFER_LENGTH)];
+                    // Get current value
                     SkeletonPoint endPoint = handPositions[handPositionsHead];
 
                     Vector2 movemetVector = new Vector2(endPoint.X - startPoint.X, endPoint.Y - startPoint.Y);
 
+                    // Check thresholds for X and Y
                     if (movemetVector.X < -MOVEMENT_THRESHOLD)
                         game.AlternativeSwipe(arm, Direction.Left);
                     else if (movemetVector.X > MOVEMENT_THRESHOLD)
@@ -455,13 +460,18 @@ namespace molnprojektet
         private const int MID_TIME = 1100;
         /// <summary>
         /// Checks for arms over head and movement of arms side to side, if yes then rain!
+        /// 
+        /// Waits until the hands are above a point between the head and shoulders then checks for movement.
+        /// Uses timers in two different states to find movement, either hands to the side or hands in the mid.
+        /// If the timers expire, the hands must be brought down to restart the regndans.
+        /// 
         /// </summary>
         private bool CheckRegndans()
         {
             var headPositionY = currentSkeleton.Joints[JointType.ShoulderCenter].Position.Y +
                                (currentSkeleton.Joints[JointType.Head].Position.Y -
                                 currentSkeleton.Joints[JointType.ShoulderCenter].Position.Y) * 0.5;
-            // Hans over head
+            // Hands over head
             if (currentSkeleton.Joints[JointType.HandRight].Position.Y > headPositionY &&
                 currentSkeleton.Joints[JointType.HandLeft].Position.Y > headPositionY &&
                 currentSkeleton.Joints[JointType.HandRight].Position.X - currentSkeleton.Joints[JointType.HandLeft].Position.X < HANDS_TOGETHER)
